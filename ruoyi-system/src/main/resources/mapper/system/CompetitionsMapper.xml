@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CompetitionsMapper">
+    
+    <resultMap type="Competitions" id="CompetitionsResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="participant"    column="participant"    />
+        <result property="mentor"    column="mentor"    />
+        <result property="score"    column="score"    />
+        <result property="status"    column="status"    />
+        <result property="registrationTime"    column="registration_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="notes"    column="notes"    />
+    </resultMap>
+
+    <sql id="selectCompetitionsVo">
+        select id, name, participant, mentor, score, status, registration_time, update_time, notes from competitions
+    </sql>
+
+    <select id="selectCompetitionsList" parameterType="Competitions" resultMap="CompetitionsResult">
+        <include refid="selectCompetitionsVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="participant != null  and participant != ''"> and participant = #{participant}</if>
+            <if test="mentor != null  and mentor != ''"> and mentor = #{mentor}</if>
+            <if test="score != null  and score != ''"> and score = #{score}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="registrationTime != null "> and registration_time = #{registrationTime}</if>
+            <if test="notes != null  and notes != ''"> and notes = #{notes}</if>
+        </where>
+    </select>
+    
+    <select id="selectCompetitionsById" parameterType="Long" resultMap="CompetitionsResult">
+        <include refid="selectCompetitionsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCompetitions" parameterType="Competitions" useGeneratedKeys="true" keyProperty="id">
+        insert into competitions
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="participant != null and participant != ''">participant,</if>
+            <if test="mentor != null and mentor != ''">mentor,</if>
+            <if test="score != null">score,</if>
+            <if test="status != null">status,</if>
+            <if test="registrationTime != null">registration_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="notes != null">notes,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="participant != null and participant != ''">#{participant},</if>
+            <if test="mentor != null and mentor != ''">#{mentor},</if>
+            <if test="score != null">#{score},</if>
+            <if test="status != null">#{status},</if>
+            <if test="registrationTime != null">#{registrationTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="notes != null">#{notes},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCompetitions" parameterType="Competitions">
+        update competitions
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="participant != null and participant != ''">participant = #{participant},</if>
+            <if test="mentor != null and mentor != ''">mentor = #{mentor},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="registrationTime != null">registration_time = #{registrationTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="notes != null">notes = #{notes},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCompetitionsById" parameterType="Long">
+        delete from competitions where id = #{id}
+    </delete>
+
+    <delete id="deleteCompetitionsByIds" parameterType="String">
+        delete from competitions where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
