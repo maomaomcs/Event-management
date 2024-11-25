@@ -13,14 +13,15 @@
 <script>
 import {
   tagChart,
-} from "@/api/cms/charts";
+} 
+from "@/api/cms/charts";
 export default {
     data() {
         return {
             tagList: [],
             randerList: [],
             radius:112,
-            distance : 187
+            distance : 2000
         }
     },
     created() {

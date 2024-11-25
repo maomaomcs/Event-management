@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SchoolMapper">
+
+    <resultMap type="School" id="SchoolResult">
+        <result property="id"    column="id"    />
+        <result property="schoolName"    column="school_name"    />
+        <result property="address"    column="address"    />
+        <result property="city"    column="city"    />
+        <result property="province"    column="province"    />
+        <result property="postalCode"    column="postal_code"    />
+        <result property="phoneNumber"    column="phone_number"    />
+        <result property="email"    column="email"    />
+        <result property="establishedYear"    column="established_year"    />
+    </resultMap>
+
+    <sql id="selectSchoolVo">
+        select id, school_name, address, city, province, postal_code, phone_number, email, established_year from school
+    </sql>
+
+    <select id="selectSchoolList" parameterType="School" resultMap="SchoolResult">
+        <include refid="selectSchoolVo"/>
+        <where>
+            <if test="schoolName != null  and schoolName != ''"> and school_name like concat('%', #{schoolName}, '%')</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="city != null  and city != ''"> and city = #{city}</if>
+            <if test="province != null  and province != ''"> and province = #{province}</if>
+            <if test="postalCode != null  and postalCode != ''"> and postal_code = #{postalCode}</if>
+            <if test="phoneNumber != null  and phoneNumber != ''"> and phone_number = #{phoneNumber}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="establishedYear != null  and establishedYear != ''"> and established_year = #{establishedYear}</if>
+        </where>
+    </select>
+
+    <select id="selectSchoolById" parameterType="Long" resultMap="SchoolResult">
+        <include refid="selectSchoolVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSchool" parameterType="School" useGeneratedKeys="true" keyProperty="id">
+        insert into school
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="schoolName != null and schoolName != ''">school_name,</if>
+            <if test="address != null">address,</if>
+            <if test="city != null">city,</if>
+            <if test="province != null">province,</if>
+            <if test="postalCode != null">postal_code,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="email != null">email,</if>
+            <if test="establishedYear != null">established_year,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="schoolName != null and schoolName != ''">#{schoolName},</if>
+            <if test="address != null">#{address},</if>
+            <if test="city != null">#{city},</if>
+            <if test="province != null">#{province},</if>
+            <if test="postalCode != null">#{postalCode},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="email != null">#{email},</if>
+            <if test="establishedYear != null">#{establishedYear},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSchool" parameterType="School">
+        update school
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="schoolName != null and schoolName != ''">school_name = #{schoolName},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="postalCode != null">postal_code = #{postalCode},</if>
+            <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="establishedYear != null">established_year = #{establishedYear},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSchoolById" parameterType="Long">
+        delete from school where id = #{id}
+    </delete>
+
+    <delete id="deleteSchoolByIds" parameterType="String">
+        delete from school where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

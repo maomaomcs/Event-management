@@ -3,31 +3,30 @@
 
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
+    <!-- 折线图 -->
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
     </el-row>
 
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <raddar-chart />
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
+    <!-- 覆盖布局 -->
+    <el-row class="overlay-row" :gutter="48">
+      <!-- 覆盖样式的饼图 -->
+      <el-col :xs="24" :sm="24" :lg="12">
+        <div class="chart-wrapper overlay">
           <pie-chart />
         </div>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <bar-chart />
+      <!-- 第二个覆盖的占位 -->
+      <el-col :xs="24" :sm="24" :lg="12">
+        <div class="chart-wrapper overlay">
+          <line-chart />
         </div>
       </el-col>
     </el-row>
 
-
   </div>
 </template>
+
 
 <script>
 import PanelGroup from './dashboard/PanelGroupCms'
@@ -62,11 +61,11 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
-    PanelGroup,
-    LineChart,
-    RaddarChart,
+    // PanelGroup,
+    // LineChart,
+    // RaddarChart,
     PieChart,
-    BarChart
+    // BarChart
   },
   data() {
     return {
@@ -89,14 +88,11 @@ export default {
 
   .chart-wrapper {
     background: #fff;
-    padding: 16px 16px 0;
+    // padding: 36px 36px 0;
     margin-bottom: 32px;
   }
 }
 
 @media (max-width:1024px) {
-  .chart-wrapper {
-    padding: 8px;
-  }
 }
 </style>

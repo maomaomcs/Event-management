@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TeamInfoMapper">
+    
+    <resultMap type="TeamInfo" id="TeamInfoResult">
+        <result property="teamid"    column="TeamID"    />
+        <result property="eventname"    column="EventName"    />
+        <result property="teamname"    column="TeamName"    />
+        <result property="teammembers"    column="TeamMembers"    />
+        <result property="createdat"    column="CreatedAt"    />
+        <result property="updatedat"    column="UpdatedAt"    />
+    </resultMap>
+
+    <sql id="selectTeamInfoVo">
+        select TeamID, EventName, TeamName, TeamMembers, CreatedAt, UpdatedAt from TeamInfo
+    </sql>
+
+    <select id="selectTeamInfoList" parameterType="TeamInfo" resultMap="TeamInfoResult">
+        <include refid="selectTeamInfoVo"/>
+        <where>  
+            <if test="eventname != null  and eventname != ''"> and EventName like concat('%', #{eventname}, '%')</if>
+            <if test="teamname != null  and teamname != ''"> and TeamName like concat('%', #{teamname}, '%')</if>
+            <if test="teammembers != null  and teammembers != ''"> and TeamMembers = #{teammembers}</if>
+            <if test="createdat != null "> and CreatedAt = #{createdat}</if>
+            <if test="updatedat != null "> and UpdatedAt = #{updatedat}</if>
+        </where>
+    </select>
+    
+    <select id="selectTeamInfoByTeamid" parameterType="Long" resultMap="TeamInfoResult">
+        <include refid="selectTeamInfoVo"/>
+        where TeamID = #{teamid}
+    </select>
+        
+    <insert id="insertTeamInfo" parameterType="TeamInfo" useGeneratedKeys="true" keyProperty="teamid">
+        insert into TeamInfo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="eventname != null and eventname != ''">EventName,</if>
+            <if test="teamname != null and teamname != ''">TeamName,</if>
+            <if test="teammembers != null and teammembers != ''">TeamMembers,</if>
+            <if test="createdat != null">CreatedAt,</if>
+            <if test="updatedat != null">UpdatedAt,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="eventname != null and eventname != ''">#{eventname},</if>
+            <if test="teamname != null and teamname != ''">#{teamname},</if>
+            <if test="teammembers != null and teammembers != ''">#{teammembers},</if>
+            <if test="createdat != null">#{createdat},</if>
+            <if test="updatedat != null">#{updatedat},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTeamInfo" parameterType="TeamInfo">
+        update TeamInfo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="eventname != null and eventname != ''">EventName = #{eventname},</if>
+            <if test="teamname != null and teamname != ''">TeamName = #{teamname},</if>
+            <if test="teammembers != null and teammembers != ''">TeamMembers = #{teammembers},</if>
+            <if test="createdat != null">CreatedAt = #{createdat},</if>
+            <if test="updatedat != null">UpdatedAt = #{updatedat},</if>
+        </trim>
+        where TeamID = #{teamid}
+    </update>
+
+    <delete id="deleteTeamInfoByTeamid" parameterType="Long">
+        delete from TeamInfo where TeamID = #{teamid}
+    </delete>
+
+    <delete id="deleteTeamInfoByTeamids" parameterType="String">
+        delete from TeamInfo where TeamID in 
+        <foreach item="teamid" collection="array" open="(" separator="," close=")">
+            #{teamid}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,73 +1,57 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="赛事名称" prop="eventName">
+      <el-form-item label="名字" prop="name">
         <el-input
-          v-model="queryParams.eventName"
+          v-model="queryParams.name"
+          placeholder="请输入名字"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="电话号码" prop="phoneNumber">
+        <el-input
+          v-model="queryParams.phoneNumber"
+          placeholder="请输入电话号码"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="赛事名称" prop="competitionName">
+        <el-input
+          v-model="queryParams.competitionName"
           placeholder="请输入赛事名称"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="级别" prop="level">
+      <el-form-item label="获奖等级" prop="awardLevel">
         <el-input
-          v-model="queryParams.level"
-          placeholder="请输入级别"
+          v-model="queryParams.awardLevel"
+          placeholder="请输入获奖等级"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="赛事类别" prop="category">
+      <el-form-item label="指导老师" prop="advisorName">
         <el-input
-          v-model="queryParams.category"
-          placeholder="请输入赛事类别"
+          v-model="queryParams.advisorName"
+          placeholder="请输入指导老师"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="主办方" prop="organizer">
-        <el-input
-          v-model="queryParams.organizer"
-          placeholder="请输入主办方"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="举办时间" prop="startTime">
+      <el-form-item label="申请时间" prop="applicationDate">
         <el-date-picker clearable size="small"
-          v-model="queryParams.startTime"
+          v-model="queryParams.applicationDate"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择举办时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="比赛地址" prop="location">
-        <el-input
-          v-model="queryParams.location"
-          placeholder="请输入比赛地址"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="截止时间" prop="createdAt">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.createdAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择创建时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="更新时间" prop="updatedAt">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.updatedAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择更新时间">
+          placeholder="选择申请时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -84,7 +68,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:events:add']"
+          v-hasPermi="['system:participants:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -95,7 +79,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:events:edit']"
+          v-hasPermi="['system:participants:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -106,7 +90,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:events:remove']"
+          v-hasPermi="['system:participants:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -116,36 +100,27 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:events:export']"
+          v-hasPermi="['system:participants:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="eventsList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="participantsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="学生id" align="center" prop="id" />
-      <el-table-column label="赛事名称" align="center" prop="eventName" />
-      <el-table-column label="级别" align="center" prop="level" />
-      <el-table-column label="赛事类别" align="center" prop="category" />
-      <el-table-column label="主办方" align="center" prop="organizer" />
-      <el-table-column label="举办时间" align="center" prop="startTime" width="180">
+      <el-table-column label="主键id" align="center" prop="id" />
+      <el-table-column label="名字" align="center" prop="name" />
+      <el-table-column label="电话号码" align="center" prop="phoneNumber" />
+      <el-table-column label="赛事名称" align="center" prop="competitionName" />
+      <el-table-column label="获奖等级" align="center" prop="awardLevel" />
+      <el-table-column label="指导老师" align="center" prop="advisorName" />
+      <el-table-column label="收款码" align="center" prop="paymentCode" />
+      <el-table-column label="申请时间" align="center" prop="applicationDate" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.applicationDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="比赛地址" align="center" prop="location" />
-      <el-table-column label="赛事描述" align="center" prop="description" />
-      <el-table-column label="截止时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="状态" align="center" prop="status" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -153,14 +128,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:events:edit']"
+            v-hasPermi="['system:participants:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:events:remove']"
+            v-hasPermi="['system:participants:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -174,49 +149,33 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改赛事记录对话框 -->
+    <!-- 添加或修改赛事报销对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="赛事名称" prop="eventName">
-          <el-input v-model="form.eventName" placeholder="请输入赛事名称" />
+        <el-form-item label="名字" prop="name">
+          <el-input v-model="form.name" placeholder="请输入名字" />
         </el-form-item>
-        <el-form-item label="级别" prop="level">
-          <el-input v-model="form.level" placeholder="请输入级别" />
+        <el-form-item label="电话号码" prop="phoneNumber">
+          <el-input v-model="form.phoneNumber" placeholder="请输入电话号码" />
         </el-form-item>
-        <el-form-item label="赛事类别" prop="category">
-          <el-input v-model="form.category" placeholder="请输入赛事类别" />
+        <el-form-item label="赛事名称" prop="competitionName">
+          <el-input v-model="form.competitionName" placeholder="请输入赛事名称" />
         </el-form-item>
-        <el-form-item label="主办方" prop="organizer">
-          <el-input v-model="form.organizer" placeholder="请输入主办方" />
+        <el-form-item label="获奖等级" prop="awardLevel">
+          <el-input v-model="form.awardLevel" placeholder="请输入获奖等级" />
         </el-form-item>
-        <el-form-item label="举办时间" prop="startTime">
+        <el-form-item label="指导老师" prop="advisorName">
+          <el-input v-model="form.advisorName" placeholder="请输入指导老师" />
+        </el-form-item>
+        <el-form-item label="收款码">
+          <imageUpload v-model="form.paymentCode"/>
+        </el-form-item>
+        <el-form-item label="申请时间" prop="applicationDate">
           <el-date-picker clearable size="small"
-            v-model="form.startTime"
+            v-model="form.applicationDate"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="选择举办时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="比赛地址" prop="location">
-          <el-input v-model="form.location" placeholder="请输入比赛地址" />
-        </el-form-item>
-        <el-form-item label="赛事描述" prop="description">
-          <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="截止时间" prop="createdAt">
-          <el-date-picker clearable size="small"
-            v-model="form.createdAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择截止时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="更新时间" prop="updatedAt">
-          <el-date-picker clearable size="small"
-            v-model="form.updatedAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择更新时间">
+            placeholder="选择申请时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -229,10 +188,10 @@
 </template>
 
 <script>
-import { listEvents, getEvents, delEvents, addEvents, updateEvents } from "@/api/system/events";
+import { listParticipants, getParticipants, delParticipants, addParticipants, updateParticipants } from "@/api/system/participants";
 
 export default {
-  name: "Events",
+  name: "Participants",
   data() {
     return {
       // 遮罩层
@@ -247,8 +206,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 赛事记录表格数据
-      eventsList: [],
+      // 赛事报销表格数据
+      participantsList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -257,22 +216,39 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        eventName: null,
-        level: null,
-        category: null,
-        organizer: null,
-        startTime: null,
-        location: null,
-        description: null,
-        createdAt: null,
-        updatedAt: null
+        name: null,
+        phoneNumber: null,
+        competitionName: null,
+        awardLevel: null,
+        advisorName: null,
+        paymentCode: null,
+        applicationDate: null,
+        status: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        eventName: [
+        name: [
+          { required: true, message: "名字不能为空", trigger: "blur" }
+        ],
+        phoneNumber: [
+          { required: true, message: "电话号码不能为空", trigger: "blur" }
+        ],
+        competitionName: [
           { required: true, message: "赛事名称不能为空", trigger: "blur" }
+        ],
+        awardLevel: [
+          { required: true, message: "获奖等级不能为空", trigger: "blur" }
+        ],
+        advisorName: [
+          { required: true, message: "指导老师不能为空", trigger: "blur" }
+        ],
+        paymentCode: [
+          { required: true, message: "收款码不能为空", trigger: "blur" }
+        ],
+        applicationDate: [
+          { required: true, message: "申请时间不能为空", trigger: "blur" }
         ],
       }
     };
@@ -281,11 +257,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询赛事记录列表 */
+    /** 查询赛事报销列表 */
     getList() {
       this.loading = true;
-      listEvents(this.queryParams).then(response => {
-        this.eventsList = response.rows;
+      listParticipants(this.queryParams).then(response => {
+        this.participantsList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -299,15 +275,14 @@ export default {
     reset() {
       this.form = {
         id: null,
-        eventName: null,
-        level: null,
-        category: null,
-        organizer: null,
-        startTime: null,
-        location: null,
-        description: null,
-        createdAt: null,
-        updatedAt: null
+        name: null,
+        phoneNumber: null,
+        competitionName: null,
+        awardLevel: null,
+        advisorName: null,
+        paymentCode: null,
+        applicationDate: null,
+        status: "0"
       };
       this.resetForm("form");
     },
@@ -331,16 +306,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加赛事记录";
+      this.title = "添加赛事报销";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getEvents(id).then(response => {
+      getParticipants(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改赛事记录";
+        this.title = "修改赛事报销";
       });
     },
     /** 提交按钮 */
@@ -348,13 +323,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateEvents(this.form).then(response => {
+            updateParticipants(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addEvents(this.form).then(response => {
+            addParticipants(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -366,8 +341,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除赛事记录编号为"' + ids + '"的数据项？').then(function() {
-        return delEvents(ids);
+      this.$modal.confirm('是否确认删除赛事报销编号为"' + ids + '"的数据项？').then(function() {
+        return delParticipants(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -375,9 +350,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/events/export', {
+      this.download('system/participants/export', {
         ...this.queryParams
-      }, `events_${new Date().getTime()}.xlsx`)
+      }, `participants_${new Date().getTime()}.xlsx`)
     }
   }
 };

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ParticipantsMapper">
+    
+    <resultMap type="Participants" id="ParticipantsResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="phoneNumber"    column="phone_number"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="awardLevel"    column="award_level"    />
+        <result property="advisorName"    column="advisor_name"    />
+        <result property="paymentCode"    column="payment_code"    />
+        <result property="applicationDate"    column="application_date"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectParticipantsVo">
+        select id, name, phone_number, competition_name, award_level, advisor_name, payment_code, application_date, status from participants
+    </sql>
+
+    <select id="selectParticipantsList" parameterType="Participants" resultMap="ParticipantsResult">
+        <include refid="selectParticipantsVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="phoneNumber != null  and phoneNumber != ''"> and phone_number = #{phoneNumber}</if>
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="awardLevel != null  and awardLevel != ''"> and award_level = #{awardLevel}</if>
+            <if test="advisorName != null  and advisorName != ''"> and advisor_name like concat('%', #{advisorName}, '%')</if>
+            <if test="paymentCode != null  and paymentCode != ''"> and payment_code = #{paymentCode}</if>
+            <if test="applicationDate != null "> and application_date = #{applicationDate}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectParticipantsById" parameterType="Long" resultMap="ParticipantsResult">
+        <include refid="selectParticipantsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertParticipants" parameterType="Participants" useGeneratedKeys="true" keyProperty="id">
+        insert into participants
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="phoneNumber != null and phoneNumber != ''">phone_number,</if>
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="awardLevel != null and awardLevel != ''">award_level,</if>
+            <if test="advisorName != null and advisorName != ''">advisor_name,</if>
+            <if test="paymentCode != null and paymentCode != ''">payment_code,</if>
+            <if test="applicationDate != null">application_date,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="phoneNumber != null and phoneNumber != ''">#{phoneNumber},</if>
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="awardLevel != null and awardLevel != ''">#{awardLevel},</if>
+            <if test="advisorName != null and advisorName != ''">#{advisorName},</if>
+            <if test="paymentCode != null and paymentCode != ''">#{paymentCode},</if>
+            <if test="applicationDate != null">#{applicationDate},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateParticipants" parameterType="Participants">
+        update participants
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="phoneNumber != null and phoneNumber != ''">phone_number = #{phoneNumber},</if>
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="awardLevel != null and awardLevel != ''">award_level = #{awardLevel},</if>
+            <if test="advisorName != null and advisorName != ''">advisor_name = #{advisorName},</if>
+            <if test="paymentCode != null and paymentCode != ''">payment_code = #{paymentCode},</if>
+            <if test="applicationDate != null">application_date = #{applicationDate},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteParticipantsById" parameterType="Long">
+        delete from participants where id = #{id}
+    </delete>
+
+    <delete id="deleteParticipantsByIds" parameterType="String">
+        delete from participants where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

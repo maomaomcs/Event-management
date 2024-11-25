@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.Competitions1Mapper">
+    
+    <resultMap type="Competitions1" id="Competitions1Result">
+        <result property="id"    column="id"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="organizingBody"    column="organizing_body"    />
+        <result property="participationFee"    column="participation_fee"    />
+        <result property="competitionType"    column="competition_type"    />
+        <result property="registrationDate"    column="registration_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="status"    column="status"    />
+        <result property="actions"    column="actions"    />
+    </resultMap>
+
+    <sql id="selectCompetitions1Vo">
+        select id, competition_name, organizing_body, participation_fee, competition_type, registration_date, end_date, status, actions from competitions1
+    </sql>
+
+    <select id="selectCompetitions1List" parameterType="Competitions1" resultMap="Competitions1Result">
+        <include refid="selectCompetitions1Vo"/>
+        <where>  
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="organizingBody != null  and organizingBody != ''"> and organizing_body = #{organizingBody}</if>
+            <if test="participationFee != null  and participationFee != ''"> and participation_fee = #{participationFee}</if>
+            <if test="competitionType != null  and competitionType != ''"> and competition_type = #{competitionType}</if>
+            <if test="registrationDate != null "> and registration_date = #{registrationDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+        </where>
+    </select>
+    
+    <select id="selectCompetitions1ById" parameterType="Long" resultMap="Competitions1Result">
+        <include refid="selectCompetitions1Vo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCompetitions1" parameterType="Competitions1" useGeneratedKeys="true" keyProperty="id">
+        insert into competitions1
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="organizingBody != null">organizing_body,</if>
+            <if test="participationFee != null">participation_fee,</if>
+            <if test="competitionType != null">competition_type,</if>
+            <if test="registrationDate != null">registration_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="status != null">status,</if>
+            <if test="actions != null">actions,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="organizingBody != null">#{organizingBody},</if>
+            <if test="participationFee != null">#{participationFee},</if>
+            <if test="competitionType != null">#{competitionType},</if>
+            <if test="registrationDate != null">#{registrationDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="status != null">#{status},</if>
+            <if test="actions != null">#{actions},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCompetitions1" parameterType="Competitions1">
+        update competitions1
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="organizingBody != null">organizing_body = #{organizingBody},</if>
+            <if test="participationFee != null">participation_fee = #{participationFee},</if>
+            <if test="competitionType != null">competition_type = #{competitionType},</if>
+            <if test="registrationDate != null">registration_date = #{registrationDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="actions != null">actions = #{actions},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCompetitions1ById" parameterType="Long">
+        delete from competitions1 where id = #{id}
+    </delete>
+
+    <delete id="deleteCompetitions1ByIds" parameterType="String">
+        delete from competitions1 where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

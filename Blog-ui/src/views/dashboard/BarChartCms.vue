@@ -7,7 +7,7 @@
 
 <script>
 import echarts from 'echarts'
-require('echarts/theme/macarons') // echarts theme
+require('echarts/theme/macarons') 
 import resize from './mixins/resize'
 import {
     essayChart,
@@ -61,7 +61,6 @@ export default {
     },
     initChart() {
       this.chart = echarts.init(document.getElementById('barChartId'), 'macarons')
-
       this.chart.setOption({
         tooltip: {
           trigger: 'axis',

@@ -1,113 +1,183 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" >
-    <h3 class="title">分类</h3>
-    <div id="pieChartId" style="height: 280px;width: 100%;"></div>
+  <div class="competition-card-container">
+    <h3 class="title">比赛报名</h3>
+    <div v-if="competitions.length > 0">
+      <div v-for="competition in competitions" :key="competition.id" class="competition-card">
+        <div class="competition-header">
+          <h4 class="competition-title">{{ competition.competitionName }}</h4>
+          <span class="competition-level">{{ competition.competitionType }}</span>
+        </div>
+        <p class="organizer">主办方: {{ competition.organizingBody }}</p>
+        <p class="registration-time">
+          报名时间: {{ competition.registrationDate }} ~ {{ competition.endDate }}
+        </p>
+        <div class="action-row">
+          <button class="register-button" @click="handleRegistration(competition.id)">立即报名</button>
+          <span class="countdown">{{ getDaysLeft(competition.endDate) }}</span>
+        </div>
+        <div class="details-row">
+          <p>竞赛详情 ></p>
+          <p>比赛时间: {{ competition.endDate }}</p>
+        </div>
+      </div>
+    </div>
+    <div v-else class="no-data">
+      <p>暂无比赛数据</p>
+    </div>
   </div>
 </template>
 
 <script>
-import echarts from 'echarts'
-require('echarts/theme/macarons') // echarts theme
-import resize from './mixins/resize'
-import {
-    pieChart,
-  } from "@/api/cms/charts";
+import { listCompetitions1 } from "@/api/system/competitions1";
+
 export default {
-  mixins: [resize],
-  props: {
-    className: {
-      type: String,
-      default: 'chart'
-    },
-    width: {
-      type: String,
-      default: '100%'
-    },
-    height: {
-      type: String,
-      default: '300px'
-    }
-  },
   data() {
     return {
-      chart: null,
-      type:['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts'],
-      data:[
-              { value: 320, name: 'Industries' },
-              { value: 240, name: 'Technology' },
-              { value: 149, name: 'Forex' },
-              { value: 100, name: 'Gold' },
-              { value: 59, name: 'Forecasts' }
-            ],
+      competitions: [] // 比赛列表
+    };
+  },
+  methods: {
+    async fetchCompetitions() {
+      try {
+        const response = await listCompetitions1();
+        if (response && response.rows) {
+          this.competitions = response.rows;
+        } else {
+          this.competitions = [];
+        }
+      } catch (error) {
+        console.error("获取数据失败", error);
+        this.competitions = [];
+      }
+    },
+    handleRegistration(id) {
+      // 点击报名按钮的事件
+      console.log(`报名比赛 ID: ${id}`);
+      alert("报名功能尚未实现");
+    },
+    getDaysLeft(endDate) {
+      const today = new Date();
+      const end = new Date(endDate);
+      const daysLeft = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+      return daysLeft > 0 ? `距离报名截止还有 ${daysLeft} 天` : "报名已截止";
     }
   },
   mounted() {
-    this.$nextTick(() => {
-      this.getPieChart()
-    })
-  },
-  beforeDestroy() {
-    if (!this.chart) {
-      return
-    }
-    this.chart.dispose()
-    this.chart = null
-  },
-  methods: {
-    getPieChart(){
-      pieChart().then(response => {
-        this.type = response.type;
-        this.data = response.data;
-        this.initChart()
-      });
-    },
-    initChart() {
-      this.chart = echarts.init(document.getElementById('pieChartId'), 'macarons')
-
-      this.chart.setOption({
-        // title: {
-        //     text: '分类',
-        //     // subtext: 'Fake Data',
-        //     textStyle:{
-        //       color: 'rgba(0, 0, 0, 0.45)',
-        //       fontWeight: 'bold',
-        //       fontSize: '16'
-        //     }
-        //   },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
-        },
-        legend: {
-          left: 'center',
-          bottom: '10',
-          data: this.type
-        },
-        series: [
-          {
-            name: '分类',
-            type: 'pie',
-            roseType: 'radius',
-            radius: [15, 75],
-            center: ['50%', '38%'],
-            data: this.data,
-            animationEasing: 'cubicInOut',
-            animationDuration: 2600
-          }
-        ]
-      })
-    }
+    this.fetchCompetitions();
   }
-}
+};
 </script>
 
 <style scoped>
-  .title{
-    top: 0;
-    left: 0;
-    margin: 0;
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 16px;
-    font-weight:bold;
-  }
+/* 整体容器样式 */
+.competition-card-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 标题样式 */
+.title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* 卡片样式 */
+.competition-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  box-sizing: border-box;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.competition-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* 卡片头部样式 */
+.competition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.competition-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.competition-level {
+  font-size: 14px;
+  color: #fff;
+  background: #4caf50;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* 主办方与报名时间 */
+.organizer,
+.registration-time {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0;
+}
+
+/* 行为按钮与倒计时 */
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.register-button {
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.register-button:hover {
+  background: #1976d2;
+}
+
+.countdown {
+  font-size: 14px;
+  color: #f44336;
+}
+
+/* 比赛详情与时间 */
+.details-row {
+  margin-top: 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  color: #333;
+}
+
+.details-row p {
+  margin: 0;
+}
+
+/* 无数据提示 */
+.no-data {
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+}
 </style>

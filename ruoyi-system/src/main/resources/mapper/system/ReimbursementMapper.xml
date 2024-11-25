@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ReimbursementMapper">
+    
+    <resultMap type="Reimbursement" id="ReimbursementResult">
+        <result property="id"    column="id"    />
+        <result property="paymentCodeImage"    column="payment_code_image"    />
+        <result property="name"    column="name"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="awardLevel"    column="award_level"    />
+        <result property="submissionDate"    column="submission_date"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectReimbursementVo">
+        select id, payment_code_image, name, competition_name, award_level, submission_date, status from reimbursement
+    </sql>
+
+    <select id="selectReimbursementList" parameterType="Reimbursement" resultMap="ReimbursementResult">
+        <include refid="selectReimbursementVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+            <if test="paymentCodeImage != null  and paymentCodeImage != ''"> and payment_code_image = #{paymentCodeImage}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="awardLevel != null  and awardLevel != ''"> and award_level = #{awardLevel}</if>
+            <if test="submissionDate != null "> and submission_date = #{submissionDate}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectReimbursementById" parameterType="Long" resultMap="ReimbursementResult">
+        <include refid="selectReimbursementVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertReimbursement" parameterType="Reimbursement" useGeneratedKeys="true" keyProperty="id">
+        insert into reimbursement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paymentCodeImage != null and paymentCodeImage != ''">payment_code_image,</if>
+            <if test="name != null">name,</if>
+            <if test="competitionName != null">competition_name,</if>
+            <if test="awardLevel != null">award_level,</if>
+            <if test="submissionDate != null">submission_date,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paymentCodeImage != null and paymentCodeImage != ''">#{paymentCodeImage},</if>
+            <if test="name != null">#{name},</if>
+            <if test="competitionName != null">#{competitionName},</if>
+            <if test="awardLevel != null">#{awardLevel},</if>
+            <if test="submissionDate != null">#{submissionDate},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateReimbursement" parameterType="Reimbursement">
+        update reimbursement
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paymentCodeImage != null and paymentCodeImage != ''">payment_code_image = #{paymentCodeImage},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="competitionName != null">competition_name = #{competitionName},</if>
+            <if test="awardLevel != null">award_level = #{awardLevel},</if>
+            <if test="submissionDate != null">submission_date = #{submissionDate},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteReimbursementById" parameterType="Long">
+        delete from reimbursement where id = #{id}
+    </delete>
+
+    <delete id="deleteReimbursementByIds" parameterType="String">
+        delete from reimbursement where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

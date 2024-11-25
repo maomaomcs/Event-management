@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MyRegistrationMapper">
+    
+    <resultMap type="MyRegistration" id="MyRegistrationResult">
+        <result property="id"    column="id"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="competitionLocation"    column="competition_location"    />
+        <result property="registrationDate"    column="registration_date"    />
+        <result property="memberInfo"    column="member_info"    />
+        <result property="paymentStatus"    column="payment_status"    />
+        <result property="reimbursementStatus"    column="reimbursement_status"    />
+    </resultMap>
+
+    <sql id="selectMyRegistrationVo">
+        select id, competition_name, competition_location, registration_date, member_info, payment_status, reimbursement_status from my_registration
+    </sql>
+
+    <select id="selectMyRegistrationList" parameterType="MyRegistration" resultMap="MyRegistrationResult">
+        <include refid="selectMyRegistrationVo"/>
+        <where>  
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="competitionLocation != null  and competitionLocation != ''"> and competition_location = #{competitionLocation}</if>
+            <if test="registrationDate != null "> and registration_date = #{registrationDate}</if>
+            <if test="memberInfo != null  and memberInfo != ''"> and member_info = #{memberInfo}</if>
+            <if test="paymentStatus != null  and paymentStatus != ''"> and payment_status = #{paymentStatus}</if>
+            <if test="reimbursementStatus != null  and reimbursementStatus != ''"> and reimbursement_status = #{reimbursementStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectMyRegistrationById" parameterType="Long" resultMap="MyRegistrationResult">
+        <include refid="selectMyRegistrationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertMyRegistration" parameterType="MyRegistration" useGeneratedKeys="true" keyProperty="id">
+        insert into my_registration
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="competitionLocation != null">competition_location,</if>
+            <if test="registrationDate != null">registration_date,</if>
+            <if test="memberInfo != null">member_info,</if>
+            <if test="paymentStatus != null">payment_status,</if>
+            <if test="reimbursementStatus != null">reimbursement_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="competitionLocation != null">#{competitionLocation},</if>
+            <if test="registrationDate != null">#{registrationDate},</if>
+            <if test="memberInfo != null">#{memberInfo},</if>
+            <if test="paymentStatus != null">#{paymentStatus},</if>
+            <if test="reimbursementStatus != null">#{reimbursementStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMyRegistration" parameterType="MyRegistration">
+        update my_registration
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="competitionLocation != null">competition_location = #{competitionLocation},</if>
+            <if test="registrationDate != null">registration_date = #{registrationDate},</if>
+            <if test="memberInfo != null">member_info = #{memberInfo},</if>
+            <if test="paymentStatus != null">payment_status = #{paymentStatus},</if>
+            <if test="reimbursementStatus != null">reimbursement_status = #{reimbursementStatus},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMyRegistrationById" parameterType="Long">
+        delete from my_registration where id = #{id}
+    </delete>
+
+    <delete id="deleteMyRegistrationByIds" parameterType="String">
+        delete from my_registration where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
