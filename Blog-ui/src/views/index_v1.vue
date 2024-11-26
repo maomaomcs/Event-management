@@ -3,9 +3,9 @@
 
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
+    <!-- <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
-    </el-row>
+    </el-row> -->
 
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
@@ -78,17 +78,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dashboard-editor-container {
-  padding: 32px;
-  background-color: rgb(240, 242, 245);
-  position: relative;
+// .dashboard-editor-container {
+//   padding: 32px;
+//   background-color: rgb(240, 242, 245);
+//   position: relative;
 
-  .chart-wrapper {
-    background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
-  }
-}
+//   .chart-wrapper {
+//     background: #fff;
+//     padding: 16px 16px 0;
+//     margin-bottom: 32px;
+//   }
+// }
 
 @media (max-width:1024px) {
   .chart-wrapper {

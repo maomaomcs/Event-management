@@ -3,10 +3,10 @@
 
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
-    <!-- 折线图 -->
+    <!-- 折线图
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
-    </el-row>
+    </el-row> -->
 
     <!-- 覆盖布局 -->
     <el-row class="overlay-row" :gutter="48">
