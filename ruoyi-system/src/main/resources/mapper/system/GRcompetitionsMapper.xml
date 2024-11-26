@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.GRcompetitionsMapper">
+    
+    <resultMap type="GRcompetitions" id="GRcompetitionsResult">
+        <result property="id"    column="id"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="competitionCategory"    column="competition_category"    />
+        <result property="name"    column="name"    />
+        <result property="studentId"    column="student_id"    />
+        <result property="major"    column="major"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectGRcompetitionsVo">
+        select id, competition_name, competition_category, name, student_id, major, status from GRcompetitions
+    </sql>
+
+    <select id="selectGRcompetitionsList" parameterType="GRcompetitions" resultMap="GRcompetitionsResult">
+        <include refid="selectGRcompetitionsVo"/>
+        <where>  
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="competitionCategory != null  and competitionCategory != ''"> and competition_category = #{competitionCategory}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="studentId != null  and studentId != ''"> and student_id = #{studentId}</if>
+            <if test="major != null  and major != ''"> and major = #{major}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectGRcompetitionsById" parameterType="Long" resultMap="GRcompetitionsResult">
+        <include refid="selectGRcompetitionsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertGRcompetitions" parameterType="GRcompetitions" useGeneratedKeys="true" keyProperty="id">
+        insert into GRcompetitions
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="competitionCategory != null and competitionCategory != ''">competition_category,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="studentId != null and studentId != ''">student_id,</if>
+            <if test="major != null and major != ''">major,</if>
+            <if test="status != null and status != ''">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="competitionCategory != null and competitionCategory != ''">#{competitionCategory},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="studentId != null and studentId != ''">#{studentId},</if>
+            <if test="major != null and major != ''">#{major},</if>
+            <if test="status != null and status != ''">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateGRcompetitions" parameterType="GRcompetitions">
+        update GRcompetitions
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="competitionCategory != null and competitionCategory != ''">competition_category = #{competitionCategory},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="studentId != null and studentId != ''">student_id = #{studentId},</if>
+            <if test="major != null and major != ''">major = #{major},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteGRcompetitionsById" parameterType="Long">
+        delete from GRcompetitions where id = #{id}
+    </delete>
+
+    <delete id="deleteGRcompetitionsByIds" parameterType="String">
+        delete from GRcompetitions where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
