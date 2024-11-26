@@ -27,7 +27,7 @@
           <span class="countdown">{{ getDaysLeft(competition.endDate) }}</span>
         </div>
         <div class="details-row">
-          <p>比赛时间: {{ competition.endDate }}</p>
+          <p>比赛时间: {{ competition.competitionStartTime }} ~ {{ competition.competitionEndTime }}</p>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { listCompetitions1 } from "@/api/system/competitions1";
+import { listCompetitions2 } from "@/api/system/competitions2";
 
 export default {
   data() {
@@ -49,7 +49,7 @@ export default {
   methods: {
     async fetchCompetitions() {
       try {
-        const response = await listCompetitions1();
+        const response = await listCompetitions2();
         if (response && response.rows) {
           this.competitions = response.rows;
         } else {
