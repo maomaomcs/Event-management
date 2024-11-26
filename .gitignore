@@ -42,3 +42,9 @@ nbdist/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+
+
+######################################################################
+# Others
+/ruoyi-admin/src/main/resources/application.yml
+/ruoyi-admin/src/main/resources/application-druid.yml
