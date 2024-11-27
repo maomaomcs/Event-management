@@ -197,30 +197,38 @@ export default {
 <style scoped>
 /* 整体容器样式 */
 .competition-card-container {
-  max-width: 1301px;
-  margin: 0 auto;
-  padding: 30px;
-  box-sizing: border-box;
-  background-color: #f9f9f9;
-  border-radius: 10px;
+  max-width: 1328px;
+    margin: 0 auto;
+    padding: 30px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    width: 1325px;
 }
 
 /* 标题样式 */
 .title {
   text-align: center;
   font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 30px;
+  font-weight: 600;
+  margin-bottom: 40px;
   color: #2c3e50;
 }
 
 /* 卡片样式 */
 .competition-card {
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.competition-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* 卡片头部样式 */
@@ -231,20 +239,27 @@ export default {
 }
 
 .competition-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 600;
+  color: #34495e;
 }
 
 .competition-status {
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 12px;
+  text-align: center;
 }
 
 .status-active {
-  color: #2ecc71;
+  background-color: #2ecc71;
+  color: white;
 }
 
 .status-ended {
-  color: #e74c3c;
+  background-color: #e74c3c;
+  color: white;
 }
 
 /* 比赛信息样式 */
@@ -254,6 +269,7 @@ export default {
 .registration-time {
   font-size: 14px;
   color: #7f8c8d;
+  margin-bottom: 10px;
 }
 
 /* 按钮样式 */
@@ -261,40 +277,116 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 20px;
 }
 
 .register-button {
-  padding: 10px 20px;
+  padding: 12px 25px;
   background-color: #3498db;
   border: none;
   color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.register-button.disabled {
+.register-button:disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
 }
 
+.register-button:hover {
+  background-color: #2980b9;
+}
+
+.register-button:active {
+  transform: scale(0.98);
+}
+
+/* Countdown styling */
 .countdown {
   font-size: 14px;
   color: #95a5a6;
+  font-weight: 500;
 }
 
 /* 表单弹窗样式 */
 .details-row {
   font-size: 14px;
   color: #95a5a6;
+  margin-top: 10px;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
+  margin-top: 20px;
 }
 
 .no-data {
   text-align: center;
   font-size: 16px;
   color: #7f8c8d;
+  font-weight: 500;
 }
+
+/* 表单样式 */
+.el-input, .el-select {
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.el-form-item {
+  margin-bottom: 20px;
+}
+
+.el-form-item label {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 16px;
+}
+
+/* 弹窗的确认按钮样式 */
+.dialog-footer .el-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+/* Responsiveness for mobile view */
+@media (max-width: 768px) {
+  .competition-card-container {
+    padding: 20px;
+  }
+
+  .competition-card {
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .competition-title {
+    font-size: 18px;
+  }
+
+  .action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .register-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .countdown {
+    margin-top: 10px;
+  }
+}
+
 </style>
