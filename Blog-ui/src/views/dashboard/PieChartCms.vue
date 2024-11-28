@@ -13,7 +13,7 @@
             {{ getCompetitionStatus(competition.endDate) }}
           </span>
         </div>
-        <p class="organizer">主办方: {{ competition.organizingBody }}</p>
+        <p class="organizer">赛事类别: {{ competition.organizingBody }}</p>
         <p class="competition-level">比赛级别: {{ competition.competitionType }}</p>
         <p class="competition-fee">报名费用: {{ competition.participationFee }}</p>
         <p class="registration-time">
@@ -80,6 +80,7 @@
 import { listCompetitions2 } from "@/api/system/competitions2"; // Fetch competition data
 import { listGRcompetitions, getGRcompetitions, delGRcompetitions, addGRcompetitions, updateGRcompetitions } from "@/api/system/GRcompetitions";
 import { getUserProfile } from "@/api/system/user";
+import { listUsers, getUsers, delUsers, addUsers, updateUsers } from "@/api/system/users";
 
 export default {
   data() {
@@ -111,7 +112,7 @@ export default {
           ]
         }
       },
-      user: null, // Initialize user object
+      user: null,
     };
   },
   created() {
@@ -155,7 +156,6 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           console.log('Submitting form:', this.form);
-          // Add or update the competition registration
           const action = this.form.id ? updateGRcompetitions : addGRcompetitions;
           action(this.form).then(() => {
             this.$modal.msgSuccess(this.form.id ? "修改成功" : "报名成功");
