@@ -22,8 +22,8 @@
         <div class="action-row">
           <button
             class="register-button"
-            :disabled="isCompetitionOver(competition.endDate) || competition.registered || isSubmitting"
-            :class="{ disabled: isCompetitionOver(competition.endDate) || competition.registered || isSubmitting }"
+            :disabled="competition.registered || isCompetitionOver(competition.endDate) || isSubmitting"
+            :class="{ disabled: competition.registered || isCompetitionOver(competition.endDate) || isSubmitting }"
             @click="openRegistrationModal(competition)"
           >
             {{ competition.registered ? "已报名" : (isCompetitionOver(competition.endDate) ? "报名已结束" : (isSubmitting ? "提交中..." : "立即报名")) }}
@@ -48,14 +48,14 @@
         <el-form-item label="赛事类别" prop="competitionCategory">
           <el-input v-model="form.competitionCategory" disabled></el-input>
         </el-form-item>
-        <el-form-item label="姓名" prop="name" v-if="user">
-          <el-input v-model="form.name">{{ user.userName }}</el-input>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name" disabled></el-input>
         </el-form-item>
-        <el-form-item label="学号" prop="studentId" v-if="user">
-          <el-input v-model="form.studentId">{{ user.phonenumber }}</el-input>
+        <el-form-item label="学号" prop="studentId">
+          <el-input v-model="form.studentId" disabled></el-input>
         </el-form-item>
         <el-form-item label="专业" prop="major">
-          <el-input v-model="form.major"></el-input>
+          <el-input v-model="form.major" placeholder="默认值: 网络工程"></el-input>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择状态" clearable>
@@ -77,25 +77,26 @@
 </template>
 
 <script>
-import { listCompetitions2 } from "@/api/system/competitions2"; // Fetch competition data
-import { listGRcompetitions, getGRcompetitions, delGRcompetitions, addGRcompetitions, updateGRcompetitions } from "@/api/system/GRcompetitions";
+import { listCompetitions2 } from "@/api/system/competitions2"; 
+import { listGRcompetitions3, addGRcompetitions3, updateGRcompetitions3 } from "@/api/system/GRcompetitions3";
 import { getUserProfile } from "@/api/system/user";
-import { listUsers, getUsers, delUsers, addUsers, updateUsers } from "@/api/system/users";
 
 export default {
   data() {
     return {
       competitions: [], // 比赛列表
+      registeredCompetitions: [], // 已报名赛事列表
       open: false, // 是否显示报名弹窗
       isSubmitting: false, // 控制提交状态
       form: {
+        competitionId: "", 
         competitionName: "",
         competitionCategory: "",
         name: "",
         studentId: "",
         major: "",
-        status: "", // Ensure status is part of the form
-      }, // 表单数据
+        status: "",
+      },
       rules: {
         competitionName: [{ required: true, message: "赛事名称不能为空", trigger: "blur" }],
         competitionCategory: [{ required: true, message: "赛事类别不能为空", trigger: "blur" }],
@@ -107,10 +108,10 @@ export default {
       dict: {
         type: {
           GRcompertion: [
-            { value: '0', label: '意向参与' },
-            { value: '2', label: '已完成缴费' },
-          ]
-        }
+            { value: "0", label: "意向参与" },
+            { value: "2", label: "已完成缴费" },
+          ],
+        },
       },
       user: null,
     };
@@ -121,11 +122,13 @@ export default {
   methods: {
     async fetchCompetitions() {
       try {
-        const response = await listCompetitions2();  // 获取最新的比赛数据
+        const response = await listCompetitions2();
+        const registeredResponse = await listGRcompetitions3();
         if (response && response.rows) {
+          const registeredIds = registeredResponse.rows.map(item => item.competitionId);
           this.competitions = response.rows.map(competition => ({
             ...competition,
-            registered: competition.registered || false  // Ensure competition has registration status
+            registered: registeredIds.includes(competition.id),
           }));
         } else {
           this.competitions = [];
@@ -136,12 +139,13 @@ export default {
       }
     },
     openRegistrationModal(competition) {
-      if (this.user) {  // Ensure user data is available
+      if (this.user) {
+        this.form.competitionId = competition.id;
         this.form.competitionName = competition.competitionName;
         this.form.competitionCategory = competition.competitionType;
-        this.form.name = this.user.userName || ""; // Default to user name if available
-        this.form.studentId = this.user.phonenumber || ""; // Default to user phonenumber if available
-        this.form.major = "";
+        this.form.name = this.user.nickName || "";
+        this.form.studentId = this.user.userName || "";
+        this.form.major = "网络工程";
         this.form.status = "";
         this.open = true;
       }
@@ -152,21 +156,22 @@ export default {
       });
     },
     submitRegistration() {
-      this.isSubmitting = true; // Disable submit button while submitting
+      this.isSubmitting = true;
       this.$refs["form"].validate(valid => {
         if (valid) {
-          console.log('Submitting form:', this.form);
-          const action = this.form.id ? updateGRcompetitions : addGRcompetitions;
-          action(this.form).then(() => {
-            this.$modal.msgSuccess(this.form.id ? "修改成功" : "报名成功");
-            this.open = false;
-            this.fetchCompetitions(); // Refresh competition data
-            this.isSubmitting = false; // Reset submit button state
-          }).catch(() => {
-            this.isSubmitting = false;
-          });
+          const action = this.form.id ? updateGRcompetitions3 : addGRcompetitions3;
+          action({ ...this.form })
+            .then(() => {
+              this.$modal.msgSuccess(this.form.id ? "修改成功" : "报名成功");
+              this.open = false;
+              this.fetchCompetitions();
+              this.isSubmitting = false;
+            })
+            .catch(() => {
+              this.isSubmitting = false;
+            });
         } else {
-          this.isSubmitting = false; // Reset if validation fails
+          this.isSubmitting = false;
         }
       });
     },
@@ -186,25 +191,25 @@ export default {
     },
     getStatusClass(endDate) {
       return this.isCompetitionOver(endDate) ? "status-ended" : "status-active";
-    }
+    },
   },
   mounted() {
-    this.fetchCompetitions(); // Load competition data on mount
-  }
+    this.fetchCompetitions();
+  },
 };
 </script>
 
 <style scoped>
 /* 整体容器样式 */
 .competition-card-container {
-  max-width: 1328px;
+  max-width: 287%;
     margin: 0 auto;
     padding: 30px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     background-color: #f9f9f9;
     border-radius: 10px;
-    width: 1325px;
+    width: 211%;
 }
 
 /* 标题样式 */

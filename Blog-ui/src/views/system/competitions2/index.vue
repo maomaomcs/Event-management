@@ -123,7 +123,7 @@
 
     <el-table v-loading="loading" :data="competitions2List" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="赛事id" align="center" prop="id" />
+      <!-- <el-table-column label="赛事id" align="center" prop="id" /> -->
       <el-table-column label="赛事名称" align="center" prop="competitionName" />
       <el-table-column label="赛事级别" align="center" prop="organizingBody" />
       <el-table-column label="赛事费用" align="center" prop="participationFee" />

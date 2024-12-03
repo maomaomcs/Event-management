@@ -1,322 +1,398 @@
 <template>
-  <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="赛事名称" prop="eventname">
-        <el-input
-          v-model="queryParams.eventname"
-          placeholder="请输入赛事名称"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="队伍名称" prop="teamname">
-        <el-input
-          v-model="queryParams.teamname"
-          placeholder="请输入队伍名称"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createdat">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.createdat"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择创建时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="修改时间" prop="updatedat">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.updatedat"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择修改时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="competition-card-container">
+    <h3 class="title">比赛报名</h3>
+    <div v-if="competitions.length > 0">
+      <div
+        v-for="competition in competitions.slice().reverse()"
+        :key="competition.id"
+        class="competition-card"
+      >
+        <div class="competition-header">
+          <h4 class="competition-title">{{ competition.competitionName }}</h4>
+          <span class="competition-status" :class="getStatusClass(competition.endDate)">
+            {{ getCompetitionStatus(competition.endDate) }}
+          </span>
+        </div>
+        <p class="organizer">赛事类别: {{ competition.organizingBody }}</p>
+        <p class="competition-level">比赛级别: {{ competition.competitionType }}</p>
+        <p class="competition-fee">报名费用: {{ competition.participationFee }}</p>
+        <p class="registration-time">
+          报名时间: {{ competition.registrationDate }} ~ {{ competition.endDate }}
+        </p>
+        <div class="action-row">
+          <button
+            class="register-button"
+            :disabled="competition.registered || isCompetitionOver(competition.endDate) || isSubmitting"
+            :class="{ disabled: competition.registered || isCompetitionOver(competition.endDate) || isSubmitting }"
+            @click="openRegistrationModal(competition)"
+          >
+            {{ competition.registered ? "已报名" : (isCompetitionOver(competition.endDate) ? "报名已结束" : (isSubmitting ? "提交中..." : "立即报名")) }}
+          </button>
+          <span class="countdown">{{ getDaysLeft(competition.endDate) }}</span>
+        </div>
+        <div class="details-row">
+          <p>比赛时间: {{ competition.competitionStartTime }} ~ {{ competition.competitionEndTime }}</p>
+        </div>
+      </div>
+    </div>
+    <div v-else class="no-data">
+      <p>暂无比赛数据</p>
+    </div>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:TeamInfo:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:TeamInfo:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:TeamInfo:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['system:TeamInfo:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="TeamInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="队伍id" align="center" prop="teamid" />
-      <el-table-column label="赛事名称" align="center" prop="eventname" />
-      <el-table-column label="队伍名称" align="center" prop="teamname" />
-      <el-table-column label="队伍成员" align="center" prop="teammembers" />
-      <el-table-column label="创建时间" align="center" prop="createdat" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdat, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="修改时间" align="center" prop="updatedat" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedat, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:TeamInfo:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:TeamInfo:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
-    <!-- 添加或修改队伍信息对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="赛事名称" prop="eventname">
-          <el-input v-model="form.eventname" placeholder="请输入赛事名称" />
+    <!-- 报名弹窗 -->
+    <el-dialog :visible.sync="open" title="报名比赛" width="50%">
+      <el-form :model="form" ref="form" :rules="rules" label-width="120px">
+        <el-form-item label="赛事名称" prop="competitionName">
+          <el-input v-model="form.competitionName" disabled></el-input>
         </el-form-item>
-        <el-form-item label="队伍名称" prop="teamname">
-          <el-input v-model="form.teamname" placeholder="请输入队伍名称" />
+        <el-form-item label="赛事类别" prop="competitionCategory">
+          <el-input v-model="form.competitionCategory" disabled></el-input>
         </el-form-item>
-        <el-form-item label="队伍成员" prop="teammembers">
-          <el-input v-model="form.teammembers" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name" disabled></el-input>
         </el-form-item>
-        <el-form-item label="创建时间" prop="createdat">
-          <el-date-picker clearable size="small"
-            v-model="form.createdat"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择创建时间">
-          </el-date-picker>
+        <el-form-item label="学号" prop="studentId">
+          <el-input v-model="form.studentId" disabled></el-input>
         </el-form-item>
-        <el-form-item label="修改时间" prop="updatedat">
-          <el-date-picker clearable size="small"
-            v-model="form.updatedat"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择修改时间">
-          </el-date-picker>
+        <el-form-item label="专业" prop="major">
+          <el-input v-model="form.major" placeholder="请输入您的专业"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态" clearable>
+            <el-option
+              v-for="dictItem in dict.type.GRcompertion"
+              :key="dictItem.value"
+              :label="dictItem.label"
+              :value="dictItem.value"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="open = false">取消</el-button>
+        <el-button type="primary" @click="submitRegistration">提交报名</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { listTeamInfo, getTeamInfo, delTeamInfo, addTeamInfo, updateTeamInfo } from "@/api/system/TeamInfo";
+import { listCompetitions3 } from "@/api/system/competitions3"; 
+import { listGRcompetitions2, addGRcompetitions2, updateGRcompetitions2 } from "@/api/system/GRcompetitions2";
+import { getUserProfile } from "@/api/system/user";
 
 export default {
-  name: "TeamInfo",
   data() {
     return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 显示搜索条件
-      showSearch: true,
-      // 总条数
-      total: 0,
-      // 队伍信息表格数据
-      TeamInfoList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        eventname: null,
-        teamname: null,
-        teammembers: null,
-        createdat: null,
-        updatedat: null
+      competitions: [], // 比赛列表
+      registeredCompetitions: [], // 已报名赛事列表
+      open: false, // 是否显示报名弹窗
+      isSubmitting: false, // 控制提交状态
+      form: {
+        competitionId: "", 
+        competitionName: "",
+        competitionCategory: "",
+        name: "",
+        studentId: "",
+        major: "",
+        status: "",
+        Instructors: "0",
       },
-      // 表单参数
-      form: {},
-      // 表单校验
       rules: {
-        eventname: [
-          { required: true, message: "赛事名称不能为空", trigger: "blur" }
-        ],
-        teamname: [
-          { required: true, message: "队伍名称不能为空", trigger: "blur" }
-        ],
-        teammembers: [
-          { required: true, message: "队伍成员不能为空", trigger: "blur" }
-        ],
-      }
+        competitionName: [{ required: true, message: "赛事名称不能为空", trigger: "blur" }],
+        competitionCategory: [{ required: true, message: "赛事类别不能为空", trigger: "blur" }],
+        name: [{ required: true, message: "姓名不能为空", trigger: "blur" }],
+        studentId: [{ required: true, message: "学号不能为空", trigger: "blur" }],
+        major: [{ required: true, message: "专业不能为空", trigger: "blur" }],
+        status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+      },
+      dict: {
+        type: {
+          GRcompertion: [
+            { value: "0", label: "意向参与" },
+            { value: "2", label: "已完成缴费" },
+          ],
+        },
+      },
+      user: null,
     };
   },
   created() {
-    this.getList();
+    this.getUser();
   },
   methods: {
-    /** 查询队伍信息列表 */
-    getList() {
-      this.loading = true;
-      listTeamInfo(this.queryParams).then(response => {
-        this.TeamInfoList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+    async fetchCompetitions() {
+      try {
+        const response = await listCompetitions3();
+        const registeredResponse = await listGRcompetitions2();
+        if (response && response.rows) {
+          const registeredIds = registeredResponse.rows.map(item => item.competitionId);
+          this.competitions = response.rows.map(competition => ({
+            ...competition,
+            registered: registeredIds.includes(competition.id),
+          }));
+        } else {
+          this.competitions = [];
+        }
+      } catch (error) {
+        console.error("获取数据失败", error);
+        this.competitions = [];
+      }
     },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        teamid: null,
-        eventname: null,
-        teamname: null,
-        teammembers: null,
-        createdat: null,
-        updatedat: null
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.teamid)
-      this.single = selection.length!==1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加队伍信息";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const teamid = row.teamid || this.ids
-      getTeamInfo(teamid).then(response => {
-        this.form = response.data;
+    openRegistrationModal(competition) {
+      if (this.user) {
+        this.form.competitionId = competition.id;
+        this.form.competitionName = competition.competitionName;
+        this.form.competitionCategory = competition.competitionType;
+        this.form.name = this.user.nickName || "";
+        this.form.studentId = this.user.userName || "";
+        this.form.major = "";
+        this.form.status = "";
         this.open = true;
-        this.title = "修改队伍信息";
+      }
+    },
+    getUser() {
+      getUserProfile().then(response => {
+        this.user = response.data;
       });
     },
-    /** 提交按钮 */
-    submitForm() {
+    submitRegistration() {
+      this.isSubmitting = true;
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.teamid != null) {
-            updateTeamInfo(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
+          const action = this.form.id ? updateGRcompetitions2 : addGRcompetitions2;
+          action({ ...this.form })
+            .then(() => {
+              this.$modal.msgSuccess(this.form.id ? "修改成功" : "报名成功");
               this.open = false;
-              this.getList();
+              this.fetchCompetitions();
+              this.isSubmitting = false;
+            })
+            .catch(() => {
+              this.isSubmitting = false;
             });
-          } else {
-            addTeamInfo(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
+        } else {
+          this.isSubmitting = false;
         }
       });
     },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const teamids = row.teamid || this.ids;
-      this.$modal.confirm('是否确认删除队伍信息编号为"' + teamids + '"的数据项？').then(function() {
-        return delTeamInfo(teamids);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+    getDaysLeft(endDate) {
+      const today = new Date();
+      const end = new Date(endDate);
+      const daysLeft = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+      return daysLeft > 0 ? `距离报名截止还有 ${daysLeft} 天` : "报名已截止";
     },
-    /** 导出按钮操作 */
-    handleExport() {
-      this.download('system/TeamInfo/export', {
-        ...this.queryParams
-      }, `TeamInfo_${new Date().getTime()}.xlsx`)
-    }
-  }
+    isCompetitionOver(endDate) {
+      const today = new Date();
+      const end = new Date(endDate);
+      return today > end;
+    },
+    getCompetitionStatus(endDate) {
+      return this.isCompetitionOver(endDate) ? "已结束" : "正在报名";
+    },
+    getStatusClass(endDate) {
+      return this.isCompetitionOver(endDate) ? "status-ended" : "status-active";
+    },
+  },
+  mounted() {
+    this.fetchCompetitions();
+  },
 };
 </script>
+
+<style scoped>
+/* 整体容器样式 */
+.competition-card-container {
+  max-width: 1328px;
+    margin: 0 auto;
+    padding: 30px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    width: 1325px;
+}
+
+/* 标题样式 */
+.title {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 40px;
+  color: #2c3e50;
+}
+
+/* 卡片样式 */
+.competition-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 25px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.competition-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 卡片头部样式 */
+.competition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.competition-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.competition-status {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.status-active {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.status-ended {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* 比赛信息样式 */
+.organizer,
+.competition-level,
+.competition-fee,
+.registration-time {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 10px;
+}
+
+/* 按钮样式 */
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.register-button {
+  padding: 12px 25px;
+  background-color: #3498db;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.register-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.register-button:hover {
+  background-color: #2980b9;
+}
+
+.register-button:active {
+  transform: scale(0.98);
+}
+
+/* Countdown styling */
+.countdown {
+  font-size: 14px;
+  color: #95a5a6;
+  font-weight: 500;
+}
+
+/* 表单弹窗样式 */
+.details-row {
+  font-size: 14px;
+  color: #95a5a6;
+  margin-top: 10px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.no-data {
+  text-align: center;
+  font-size: 16px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+/* 表单样式 */
+.el-input, .el-select {
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.el-form-item {
+  margin-bottom: 20px;
+}
+
+.el-form-item label {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 16px;
+}
+
+/* 弹窗的确认按钮样式 */
+.dialog-footer .el-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+/* Responsiveness for mobile view */
+@media (max-width: 768px) {
+  .competition-card-container {
+    padding: 20px;
+  }
+
+  .competition-card {
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .competition-title {
+    font-size: 18px;
+  }
+
+  .action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .register-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .countdown {
+    margin-top: 10px;
+  }
+}
+
+</style>

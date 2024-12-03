@@ -63,6 +63,7 @@ import userAvatar from "./userAvatar";
 import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
 import { getUserProfile } from "@/api/system/user";
+import { listUsers, getUsers, delUsers, addUsers, updateUsers } from "@/api/system/users";
 
 export default {
   name: "Profile",

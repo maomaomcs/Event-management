@@ -10,48 +10,60 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="举办方" prop="organizingBody">
+      <el-form-item label="赛事id" prop="competitionId">
         <el-input
-          v-model="queryParams.organizingBody"
-          placeholder="请输入举办方"
+          v-model="queryParams.competitionId"
+          placeholder="请输入赛事id"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="参赛费用" prop="participationFee">
+      <el-form-item label="赛事类型" prop="competitionCategory">
         <el-input
-          v-model="queryParams.participationFee"
-          placeholder="请输入参赛费用"
+          v-model="queryParams.competitionCategory"
+          placeholder="请输入赛事类型"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="赛事类别" prop="competitionType">
+      <el-form-item label="姓名" prop="name">
         <el-input
-          v-model="queryParams.competitionType"
-          placeholder="请输入赛事类别"
+          v-model="queryParams.name"
+          placeholder="请输入姓名"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="报名时间" prop="registrationDate">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.registrationDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择报名时间">
-        </el-date-picker>
+      <el-form-item label="学号" prop="studentId">
+        <el-input
+          v-model="queryParams.studentId"
+          placeholder="请输入学号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
       </el-form-item>
-      <el-form-item label="截止时间" prop="endDate">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.endDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择截止时间">
-        </el-date-picker>
+      <el-form-item label="专业" prop="major">
+        <el-input
+          v-model="queryParams.major"
+          placeholder="请输入专业"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
+          <el-option
+            v-for="dict in dict.type.GRcompertion"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -67,7 +79,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:competitions1:add']"
+          v-hasPermi="['system:GRcompetitions1:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -78,7 +90,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:competitions1:edit']"
+          v-hasPermi="['system:GRcompetitions1:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -89,7 +101,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:competitions1:remove']"
+          v-hasPermi="['system:GRcompetitions1:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -99,27 +111,24 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:competitions1:export']"
+          v-hasPermi="['system:GRcompetitions1:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="competitions1List" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="GRcompetitions1List" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <!-- <el-table-column label="主键id" align="center" prop="id" /> -->
+      <!-- <el-table-column label="赛事自增id" align="center" prop="id" /> -->
       <el-table-column label="赛事名称" align="center" prop="competitionName" />
-      <el-table-column label="举办方" align="center" prop="organizingBody" />
-      <el-table-column label="参赛费用" align="center" prop="participationFee" />
-      <el-table-column label="赛事类别" align="center" prop="competitionType" />
-      <el-table-column label="报名时间" align="center" prop="registrationDate" width="180">
+      <!-- <el-table-column label="赛事id" align="center" prop="competitionId" /> -->
+      <el-table-column label="赛事类型" align="center" prop="competitionCategory" />
+      <el-table-column label="姓名" align="center" prop="name" />
+      <el-table-column label="学号" align="center" prop="studentId" />
+      <el-table-column label="专业" align="center" prop="major" />
+      <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.registrationDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="截止时间" align="center" prop="endDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
+          <dict-tag :options="dict.type.GRcompertion" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -129,14 +138,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:competitions1:edit']"
+            v-hasPermi="['system:GRcompetitions1:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:competitions1:remove']"
+            v-hasPermi="['system:GRcompetitions1:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -150,36 +159,35 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改赛事列表1对话框 -->
+    <!-- 添加或修改个人赛事11对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="赛事名称" prop="competitionName">
           <el-input v-model="form.competitionName" placeholder="请输入赛事名称" />
         </el-form-item>
-        <el-form-item label="举办方" prop="organizingBody">
-          <el-input v-model="form.organizingBody" placeholder="请输入举办方" />
+        <el-form-item label="赛事id" prop="competitionId">
+          <el-input v-model="form.competitionId" placeholder="请输入赛事id" />
         </el-form-item>
-        <el-form-item label="参赛费用" prop="participationFee">
-          <el-input v-model="form.participationFee" placeholder="请输入参赛费用" />
+        <el-form-item label="赛事类型" prop="competitionCategory">
+          <el-input v-model="form.competitionCategory" placeholder="请输入赛事类型" />
         </el-form-item>
-        <el-form-item label="赛事类别" prop="competitionType">
-          <el-input v-model="form.competitionType" placeholder="请输入赛事类别" />
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name" placeholder="请输入姓名" />
         </el-form-item>
-        <el-form-item label="报名时间" prop="registrationDate">
-          <el-date-picker clearable size="small"
-            v-model="form.registrationDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择报名时间">
-          </el-date-picker>
+        <el-form-item label="学号" prop="studentId">
+          <el-input v-model="form.studentId" placeholder="请输入学号" />
         </el-form-item>
-        <el-form-item label="截止时间" prop="endDate">
-          <el-date-picker clearable size="small"
-            v-model="form.endDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择截止时间">
-          </el-date-picker>
+        <el-form-item label="专业" prop="major">
+          <el-input v-model="form.major" placeholder="请输入专业" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-radio-group v-model="form.status">
+            <el-radio
+              v-for="dict in dict.type.GRcompertion"
+              :key="dict.value"
+:label="dict.value"
+            >{{dict.label}}</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -191,10 +199,11 @@
 </template>
 
 <script>
-import { listCompetitions1, getCompetitions1, delCompetitions1, addCompetitions1, updateCompetitions1 } from "@/api/system/competitions1";
+import { listGRcompetitions1, getGRcompetitions1, delGRcompetitions1, addGRcompetitions1, updateGRcompetitions1 } from "@/api/system/GRcompetitions1";
 
 export default {
-  name: "Competitions1",
+  name: "GRcompetitions1",
+  dicts: ['GRcompertion'],
   data() {
     return {
       // 遮罩层
@@ -209,8 +218,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 赛事列表1表格数据
-      competitions1List: [],
+      // 个人赛事11表格数据
+      GRcompetitions1List: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -220,11 +229,12 @@ export default {
         pageNum: 1,
         pageSize: 10,
         competitionName: null,
-        organizingBody: null,
-        participationFee: null,
-        competitionType: null,
-        registrationDate: null,
-        endDate: null,
+        competitionId: null,
+        competitionCategory: null,
+        name: null,
+        studentId: null,
+        major: null,
+        status: null
       },
       // 表单参数
       form: {},
@@ -233,6 +243,21 @@ export default {
         competitionName: [
           { required: true, message: "赛事名称不能为空", trigger: "blur" }
         ],
+        competitionCategory: [
+          { required: true, message: "赛事类型不能为空", trigger: "blur" }
+        ],
+        name: [
+          { required: true, message: "姓名不能为空", trigger: "blur" }
+        ],
+        studentId: [
+          { required: true, message: "学号不能为空", trigger: "blur" }
+        ],
+        major: [
+          { required: true, message: "专业不能为空", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "状态不能为空", trigger: "blur" }
+        ]
       }
     };
   },
@@ -240,11 +265,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询赛事列表1列表 */
+    /** 查询个人赛事11列表 */
     getList() {
       this.loading = true;
-      listCompetitions1(this.queryParams).then(response => {
-        this.competitions1List = response.rows;
+      listGRcompetitions1(this.queryParams).then(response => {
+        this.GRcompetitions1List = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -259,13 +284,12 @@ export default {
       this.form = {
         id: null,
         competitionName: null,
-        organizingBody: null,
-        participationFee: null,
-        competitionType: null,
-        registrationDate: null,
-        endDate: null,
-        status: "0",
-        actions: "0"
+        competitionId: null,
+        competitionCategory: null,
+        name: null,
+        studentId: null,
+        major: null,
+        status: "0"
       };
       this.resetForm("form");
     },
@@ -289,16 +313,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加赛事列表1";
+      this.title = "添加个人赛事11";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getCompetitions1(id).then(response => {
+      getGRcompetitions1(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改赛事列表1";
+        this.title = "修改个人赛事11";
       });
     },
     /** 提交按钮 */
@@ -306,13 +330,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateCompetitions1(this.form).then(response => {
+            updateGRcompetitions1(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addCompetitions1(this.form).then(response => {
+            addGRcompetitions1(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -324,8 +348,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除赛事列表1编号为"' + ids + '"的数据项？').then(function() {
-        return delCompetitions1(ids);
+      this.$modal.confirm('是否确认删除个人赛事编号为"' + ids + '"的数据项？').then(function() {
+        return delGRcompetitions1(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -333,9 +357,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/competitions1/export', {
+      this.download('system/GRcompetitions1/export', {
         ...this.queryParams
-      }, `competitions1_${new Date().getTime()}.xlsx`)
+      }, `GRcompetitions1_${new Date().getTime()}.xlsx`)
     }
   }
 };

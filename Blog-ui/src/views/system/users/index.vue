@@ -117,7 +117,6 @@
 
     <el-table v-loading="loading" :data="usersList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="人员id" align="center" prop="id" />
       <el-table-column label="姓名" align="center" prop="name" />
       <el-table-column label="学号" align="center" prop="studentId" />
       <el-table-column label="电话号" align="center" prop="phoneNumber" />
@@ -186,6 +185,22 @@
             placeholder="选择创建时间">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="角色" prop="roles">
+          <el-select v-model="form.roles" multiple placeholder="选择角色">
+            <el-option
+              v-for="role in roleList"
+              :key="role.roleId"
+              :label="role.roleName"
+              :value="role.roleId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="选择状态">
+            <el-option label="启用" value="0"></el-option>
+            <el-option label="停用" value="1"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -197,30 +212,24 @@
 
 <script>
 import { listUsers, getUsers, delUsers, addUsers, updateUsers } from "@/api/system/users";
+import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus } from "@/api/system/role";
+import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu";
+import { treeselect as deptTreeselect, roleDeptTreeselect } from "@/api/system/dept";
 
 export default {
   name: "Users",
   data() {
     return {
-      // 遮罩层
+      // 用户管理
       loading: true,
-      // 选中数组
       ids: [],
-      // 非单个禁用
       single: true,
-      // 非多个禁用
       multiple: true,
-      // 显示搜索条件
       showSearch: true,
-      // 总条数
       total: 0,
-      // 人员列表表格数据
       usersList: [],
-      // 弹出层标题
       title: "",
-      // 是否显示弹出层
       open: false,
-      // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -232,9 +241,7 @@ export default {
         password: null,
         createdAt: null
       },
-      // 表单参数
       form: {},
-      // 表单校验
       rules: {
         name: [
           { required: true, message: "姓名不能为空", trigger: "blur" }
@@ -244,15 +251,34 @@ export default {
         ],
         password: [
           { required: true, message: "密码不能为空", trigger: "blur" }
+        ]
+      },
+
+      // 角色管理
+      roleList: [],
+      menuOptions: [],
+      deptOptions: [],
+      openRoleDialog: false,
+      roleForm: {},
+      roleRules: {
+        roleName: [
+          { required: true, message: "角色名称不能为空", trigger: "blur" }
         ],
+        roleKey: [
+          { required: true, message: "权限字符不能为空", trigger: "blur" }
+        ],
+        roleSort: [
+          { required: true, message: "角色顺序不能为空", trigger: "blur" }
+        ]
       }
     };
   },
   created() {
     this.getList();
+    this.getRoleList();  // Fetch roles when the component is created
   },
   methods: {
-    /** 查询人员列表列表 */
+    // 用户列表查询
     getList() {
       this.loading = true;
       listUsers(this.queryParams).then(response => {
@@ -260,6 +286,41 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    // 角色列表查询
+    getRoleList() {
+      this.loading = true;
+      listRole(this.queryParams).then(response => {
+        this.roleList = response.rows;
+        this.loading = false;
+      });
+    },
+    // 查询菜单树结构
+    getMenuTreeselect() {
+      menuTreeselect().then(response => {
+        this.menuOptions = response.data;
+      });
+    },
+    // 查询部门树结构
+    getDeptTreeselect() {
+      deptTreeselect().then(response => {
+        this.deptOptions = response.data;
+      });
+    },
+    // 角色状态修改
+// 角色状态修改
+handleSelectionChange(val) {
+      this.ids = val.map(item => item.id);
+    },
+    handleStatusChange(row) {
+      const status = row.status === 0 ? 1 : 0;
+      updateUsersStatus([row.id], status)
+        .then(() => {
+          this.$message.success(`用户状态已${status === 0 ? '启用' : '停用'}`);
+        })
+        .catch(() => {
+          this.$message.error("状态更新失败");
+        });
     },
     // 取消按钮
     cancel() {
@@ -280,39 +341,33 @@ export default {
       };
       this.resetForm("form");
     },
-    /** 搜索按钮操作 */
+    // 搜索按钮操作
     handleQuery() {
       this.queryParams.pageNum = 1;
       this.getList();
     },
-    /** 重置按钮操作 */
+    // 重置按钮操作
     resetQuery() {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
+    // 新增用户
     handleAdd() {
       this.reset();
       this.open = true;
       this.title = "添加人员列表";
     },
-    /** 修改按钮操作 */
+    // 修改用户
     handleUpdate(row) {
       this.reset();
-      const id = row.id || this.ids
+      const id = row.id || this.ids;
       getUsers(id).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "修改人员列表";
       });
     },
-    /** 提交按钮 */
+    // 提交用户表单
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
@@ -332,7 +387,7 @@ export default {
         }
       });
     },
-    /** 删除按钮操作 */
+    // 删除用户
     handleDelete(row) {
       const ids = row.id || this.ids;
       this.$modal.confirm('是否确认删除人员列表编号为"' + ids + '"的数据项？').then(function() {
@@ -342,12 +397,51 @@ export default {
         this.$modal.msgSuccess("删除成功");
       }).catch(() => {});
     },
-    /** 导出按钮操作 */
+    // 导出用户
     handleExport() {
       this.download('system/users/export', {
         ...this.queryParams
       }, `users_${new Date().getTime()}.xlsx`)
-    }
+    },
+
+    // 角色表单操作
+    handleRoleAdd() {
+      this.roleForm = {}; // Clear form before adding
+      this.openRoleDialog = true;
+      this.title = "添加角色";
+    },
+    handleRoleUpdate(role) {
+      this.roleForm = { ...role }; // Fill form with role data
+      this.openRoleDialog = true;
+      this.title = "修改角色";
+    },
+    handleRoleSubmit() {
+      this.$refs['roleForm'].validate(valid => {
+        if (valid) {
+          if (this.roleForm.roleId) {
+            updateRole(this.roleForm).then(() => {
+              this.$modal.msgSuccess("角色更新成功");
+              this.openRoleDialog = false;
+              this.getRoleList();
+            });
+          } else {
+            addRole(this.roleForm).then(() => {
+              this.$modal.msgSuccess("角色创建成功");
+              this.openRoleDialog = false;
+              this.getRoleList();
+            });
+          }
+        }
+      });
+    },
+    handleRoleDelete(role) {
+      this.$modal.confirm('确认要删除角色："' + role.roleName + '"?').then(() => {
+        return delRole(role.roleId);
+      }).then(() => {
+        this.$modal.msgSuccess("删除成功");
+        this.getRoleList();
+      });
+    },
   }
 };
 </script>

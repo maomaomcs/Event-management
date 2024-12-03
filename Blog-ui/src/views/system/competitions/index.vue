@@ -1,49 +1,87 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="赛事名称" prop="name">
+      <el-form-item label="赛事名称" prop="competitionName">
         <el-input
-          v-model="queryParams.name"
+          v-model="queryParams.competitionName"
           placeholder="请输入赛事名称"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="参赛人" prop="participant">
+      <!-- <el-form-item label="赛事id" prop="competitionId">
         <el-input
-          v-model="queryParams.participant"
-          placeholder="请输入参赛人"
+          v-model="queryParams.competitionId"
+          placeholder="请输入赛事id"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item> -->
+      <el-form-item label="赛事级别" prop="competitionCategory">
+        <el-input
+          v-model="queryParams.competitionCategory"
+          placeholder="请输入赛事级别"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="指导老师" prop="mentor">
+      <el-form-item label="姓名" prop="name">
         <el-input
-          v-model="queryParams.mentor"
+          v-model="queryParams.name"
+          placeholder="请输入姓名"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="学号" prop="studentId">
+        <el-input
+          v-model="queryParams.studentId"
+          placeholder="请输入学号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="专业" prop="major">
+        <el-input
+          v-model="queryParams.major"
+          placeholder="请输入专业"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
+          <el-option
+            v-for="dict in dict.type.GRcompertion"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="指导老师" prop="instructors">
+        <el-input
+          v-model="queryParams.instructors"
           placeholder="请输入指导老师"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="成绩" prop="score">
+      <el-form-item label="获奖情况" prop="award">
         <el-input
-          v-model="queryParams.score"
-          placeholder="请输入成绩"
+          v-model="queryParams.award"
+          placeholder="请输入获奖情况"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
-      </el-form-item>
-      <el-form-item label="登记时间" prop="registrationTime">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.registrationTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择登记时间">
-        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -59,7 +97,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:competitions:add']"
+          v-hasPermi="['system:GRcompetitions3:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -70,7 +108,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:competitions:edit']"
+          v-hasPermi="['system:GRcompetitions3:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -81,7 +119,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:competitions:remove']"
+          v-hasPermi="['system:GRcompetitions3:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -91,26 +129,28 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:competitions:export']"
+          v-hasPermi="['system:GRcompetitions3:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="competitionsList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="GRcompetitions3List" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="账号id" align="center" prop="id" />
-      <el-table-column label="赛事名称" align="center" prop="name" />
-      <el-table-column label="参赛人" align="center" prop="participant" />
-      <el-table-column label="指导老师" align="center" prop="mentor" />
-      <el-table-column label="成绩" align="center" prop="score" />
-      <el-table-column label="状态" align="center" prop="status" />
-      <el-table-column label="登记时间" align="center" prop="registrationTime" width="180">
+      <!-- <el-table-column label="赛事id" align="center" prop="id" /> -->
+      <el-table-column label="赛事名称" align="center" prop="competitionName" />
+      <!-- <el-table-column label="赛事id" align="center" prop="competitionId" /> -->
+      <el-table-column label="赛事级别" align="center" prop="competitionCategory" />
+      <el-table-column label="姓名" align="center" prop="name" />
+      <el-table-column label="学号" align="center" prop="studentId" />
+      <el-table-column label="专业" align="center" prop="major" />
+      <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.registrationTime, '{y}-{m}-{d}') }}</span>
+          <dict-tag :options="dict.type.GRcompertion" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="notes" />
+      <el-table-column label="指导老师" align="center" prop="instructors" />
+      <el-table-column label="获奖情况" align="center" prop="award" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -118,14 +158,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:competitions:edit']"
+            v-hasPermi="['system:GRcompetitions3:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:competitions:remove']"
+            v-hasPermi="['system:GRcompetitions3:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -139,31 +179,41 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改赛事记录1对话框 -->
+    <!-- 添加或修改个人赛事副本对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="赛事名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入赛事名称" />
+        <el-form-item label="赛事名称" prop="competitionName">
+          <el-input v-model="form.competitionName" placeholder="请输入赛事名称" />
         </el-form-item>
-        <el-form-item label="参赛人" prop="participant">
-          <el-input v-model="form.participant" placeholder="请输入参赛人" />
+        <!-- <el-form-item label="赛事id" prop="competitionId">
+          <el-input v-model="form.competitionId" placeholder="请输入赛事id" />
+        </el-form-item> -->
+        <el-form-item label="赛事级别" prop="competitionCategory">
+          <el-input v-model="form.competitionCategory" placeholder="请输入赛事级别" />
         </el-form-item>
-        <el-form-item label="指导老师" prop="mentor">
-          <el-input v-model="form.mentor" placeholder="请输入指导老师" />
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name" placeholder="请输入姓名" />
         </el-form-item>
-        <el-form-item label="成绩" prop="score">
-          <el-input v-model="form.score" placeholder="请输入成绩" />
+        <el-form-item label="学号" prop="studentId">
+          <el-input v-model="form.studentId" placeholder="请输入学号" />
         </el-form-item>
-        <el-form-item label="登记时间" prop="registrationTime">
-          <el-date-picker clearable size="small"
-            v-model="form.registrationTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择登记时间">
-          </el-date-picker>
+        <el-form-item label="专业" prop="major">
+          <el-input v-model="form.major" placeholder="请输入专业" />
         </el-form-item>
-        <el-form-item label="备注" prop="notes">
-          <el-input v-model="form.notes" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="状态">
+          <el-radio-group v-model="form.status">
+            <el-radio
+              v-for="dict in dict.type.GRcompertion"
+              :key="dict.value"
+:label="dict.value"
+            >{{dict.label}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="指导老师" prop="instructors">
+          <el-input v-model="form.instructors" placeholder="请输入指导老师" />
+        </el-form-item>
+        <el-form-item label="获奖情况" prop="award">
+          <el-input v-model="form.award" placeholder="请输入获奖情况" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -175,10 +225,11 @@
 </template>
 
 <script>
-import { listCompetitions, getCompetitions, delCompetitions, addCompetitions, updateCompetitions } from "@/api/system/competitions";
+import { listGRcompetitions3, getGRcompetitions3, delGRcompetitions3, addGRcompetitions3, updateGRcompetitions3 } from "@/api/system/GRcompetitions3";
 
 export default {
-  name: "Competitions",
+  name: "GRcompetitions3",
+  dicts: ['GRcompertion'],
   data() {
     return {
       // 遮罩层
@@ -193,8 +244,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 赛事记录1表格数据
-      competitionsList: [],
+      // 个人赛事副本表格数据
+      GRcompetitions3List: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -203,32 +254,37 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        competitionName: null,
+        competitionId: null,
+        competitionCategory: null,
         name: null,
-        participant: null,
-        mentor: null,
-        score: null,
+        studentId: null,
+        major: null,
         status: null,
-        registrationTime: null,
-        notes: null
+        instructors: null,
+        award: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        name: [
+        competitionName: [
           { required: true, message: "赛事名称不能为空", trigger: "blur" }
         ],
-        participant: [
-          { required: true, message: "参赛人不能为空", trigger: "blur" }
+        competitionCategory: [
+          { required: true, message: "赛事级别不能为空", trigger: "blur" }
         ],
-        mentor: [
-          { required: true, message: "指导老师不能为空", trigger: "blur" }
+        name: [
+          { required: true, message: "姓名不能为空", trigger: "blur" }
         ],
-        registrationTime: [
-          { required: true, message: "登记时间不能为空", trigger: "blur" }
+        studentId: [
+          { required: true, message: "学号不能为空", trigger: "blur" }
         ],
-        updateTime: [
-          { required: true, message: "修改时间不能为空", trigger: "blur" }
+        major: [
+          { required: true, message: "专业不能为空", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "状态不能为空", trigger: "blur" }
         ],
       }
     };
@@ -237,11 +293,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询赛事记录1列表 */
+    /** 查询个人赛事副本列表 */
     getList() {
       this.loading = true;
-      listCompetitions(this.queryParams).then(response => {
-        this.competitionsList = response.rows;
+      listGRcompetitions3(this.queryParams).then(response => {
+        this.GRcompetitions3List = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -255,14 +311,15 @@ export default {
     reset() {
       this.form = {
         id: null,
+        competitionName: null,
+        competitionId: null,
+        competitionCategory: null,
         name: null,
-        participant: null,
-        mentor: null,
-        score: null,
+        studentId: null,
+        major: null,
         status: "0",
-        registrationTime: null,
-        updateTime: null,
-        notes: null
+        instructors: null,
+        award: null
       };
       this.resetForm("form");
     },
@@ -286,16 +343,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加赛事记录1";
+      this.title = "添加个人赛事副本";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getCompetitions(id).then(response => {
+      getGRcompetitions3(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改赛事记录1";
+        this.title = "修改个人赛事副本";
       });
     },
     /** 提交按钮 */
@@ -303,13 +360,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateCompetitions(this.form).then(response => {
+            updateGRcompetitions3(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addCompetitions(this.form).then(response => {
+            addGRcompetitions3(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -321,8 +378,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除赛事记录1编号为"' + ids + '"的数据项？').then(function() {
-        return delCompetitions(ids);
+      this.$modal.confirm('是否确认删除个人赛事副本编号为"' + ids + '"的数据项？').then(function() {
+        return delGRcompetitions3(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -330,9 +387,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/competitions/export', {
+      this.download('system/GRcompetitions3/export', {
         ...this.queryParams
-      }, `competitions_${new Date().getTime()}.xlsx`)
+      }, `GRcompetitions3_${new Date().getTime()}.xlsx`)
     }
   }
 };
