@@ -30,11 +30,11 @@
 </template>
 
 <script>
-// import PanelGroup from './dashboard/PanelGroup'
-// import LineChart from './dashboard/LineChart'
-// import RaddarChart from './dashboard/RaddarChart'
+import PanelGroup from './dashboard/PanelGroup'
+import LineChart from './dashboard/LineChart'
+import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
-// import BarChart from './dashboard/BarChart'
+import BarChart from './dashboard/BarChart'
 
 const lineChartData = {
   newVisitis: {

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VersionMapper">
+    
+    <resultMap type="Version" id="VersionResult">
+        <result property="id"    column="id"    />
+        <result property="versionNumber"    column="version_number"    />
+        <result property="releaseDate"    column="release_date"    />
+        <result property="description"    column="description"    />
+    </resultMap>
+
+    <sql id="selectVersionVo">
+        select id, version_number, release_date, description from version
+    </sql>
+
+    <select id="selectVersionList" parameterType="Version" resultMap="VersionResult">
+        <include refid="selectVersionVo"/>
+        <where>  
+            <if test="versionNumber != null  and versionNumber != ''"> and version_number = #{versionNumber}</if>
+            <if test="releaseDate != null "> and release_date = #{releaseDate}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+    
+    <select id="selectVersionById" parameterType="Long" resultMap="VersionResult">
+        <include refid="selectVersionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertVersion" parameterType="Version" useGeneratedKeys="true" keyProperty="id">
+        insert into version
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="versionNumber != null and versionNumber != ''">version_number,</if>
+            <if test="releaseDate != null">release_date,</if>
+            <if test="description != null">description,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="versionNumber != null and versionNumber != ''">#{versionNumber},</if>
+            <if test="releaseDate != null">#{releaseDate},</if>
+            <if test="description != null">#{description},</if>
+         </trim>
+    </insert>
+
+    <update id="updateVersion" parameterType="Version">
+        update version
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="versionNumber != null and versionNumber != ''">version_number = #{versionNumber},</if>
+            <if test="releaseDate != null">release_date = #{releaseDate},</if>
+            <if test="description != null">description = #{description},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteVersionById" parameterType="Long">
+        delete from version where id = #{id}
+    </delete>
+
+    <delete id="deleteVersionByIds" parameterType="String">
+        delete from version where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

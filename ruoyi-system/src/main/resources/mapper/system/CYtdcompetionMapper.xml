@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CYtdcompetionMapper">
+    
+    <resultMap type="CYtdcompetion" id="CYtdcompetionResult">
+        <result property="competitionId"    column="competition_id"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="location"    column="location"    />
+        <result property="teamCount"    column="team_count"    />
+        <result property="description"    column="description"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectCYtdcompetionVo">
+        select competition_id, competition_name, start_date, end_date, location, team_count, description, created_at, updated_at from CYtdcompetion
+    </sql>
+
+    <select id="selectCYtdcompetionList" parameterType="CYtdcompetion" resultMap="CYtdcompetionResult">
+        <include refid="selectCYtdcompetionVo"/>
+        <where>  
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="teamCount != null "> and team_count = #{teamCount}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectCYtdcompetionByCompetitionId" parameterType="Long" resultMap="CYtdcompetionResult">
+        <include refid="selectCYtdcompetionVo"/>
+        where competition_id = #{competitionId}
+    </select>
+        
+    <insert id="insertCYtdcompetion" parameterType="CYtdcompetion" useGeneratedKeys="true" keyProperty="competitionId">
+        insert into CYtdcompetion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="location != null">location,</if>
+            <if test="teamCount != null">team_count,</if>
+            <if test="description != null">description,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="location != null">#{location},</if>
+            <if test="teamCount != null">#{teamCount},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCYtdcompetion" parameterType="CYtdcompetion">
+        update CYtdcompetion
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="teamCount != null">team_count = #{teamCount},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where competition_id = #{competitionId}
+    </update>
+
+    <delete id="deleteCYtdcompetionByCompetitionId" parameterType="Long">
+        delete from CYtdcompetion where competition_id = #{competitionId}
+    </delete>
+
+    <delete id="deleteCYtdcompetionByCompetitionIds" parameterType="String">
+        delete from CYtdcompetion where competition_id in 
+        <foreach item="competitionId" collection="array" open="(" separator="," close=")">
+            #{competitionId}
+        </foreach>
+    </delete>
+</mapper>

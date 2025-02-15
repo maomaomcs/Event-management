@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TDcompetitionsMapper">
+    
+    <resultMap type="TDcompetitions" id="TDcompetitionsResult">
+        <result property="id"    column="id"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="organizingBody"    column="organizing_body"    />
+        <result property="participationFee"    column="participation_fee"    />
+        <result property="competitionType"    column="competition_type"    />
+        <result property="instructors"    column="Instructors"    />
+        <result property="memberCount"    column="member_count"    />
+        <result property="registrationDate"    column="registration_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="competitionStartTime"    column="competition_start_time"    />
+        <result property="competitionEndTime"    column="competition_end_time"    />
+        <result property="status"    column="status"    />
+        <result property="actions"    column="actions"    />
+    </resultMap>
+
+    <sql id="selectTDcompetitionsVo">
+        select id, competition_name, organizing_body, participation_fee, competition_type, Instructors, member_count, registration_date, end_date, competition_start_time, competition_end_time, status, actions from TDcompetitions
+    </sql>
+
+    <select id="selectTDcompetitionsList" parameterType="TDcompetitions" resultMap="TDcompetitionsResult">
+        <include refid="selectTDcompetitionsVo"/>
+        <where>  
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="organizingBody != null  and organizingBody != ''"> and organizing_body = #{organizingBody}</if>
+            <if test="participationFee != null  and participationFee != ''"> and participation_fee = #{participationFee}</if>
+            <if test="competitionType != null  and competitionType != ''"> and competition_type = #{competitionType}</if>
+            <if test="instructors != null  and instructors != ''"> and Instructors = #{instructors}</if>
+            <if test="memberCount != null "> and member_count = #{memberCount}</if>
+            <if test="registrationDate != null "> and registration_date = #{registrationDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="competitionStartTime != null "> and competition_start_time = #{competitionStartTime}</if>
+            <if test="competitionEndTime != null "> and competition_end_time = #{competitionEndTime}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="actions != null  and actions != ''"> and actions = #{actions}</if>
+        </where>
+    </select>
+    
+    <select id="selectTDcompetitionsById" parameterType="Long" resultMap="TDcompetitionsResult">
+        <include refid="selectTDcompetitionsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTDcompetitions" parameterType="TDcompetitions" useGeneratedKeys="true" keyProperty="id">
+        insert into TDcompetitions
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="organizingBody != null">organizing_body,</if>
+            <if test="participationFee != null and participationFee != ''">participation_fee,</if>
+            <if test="competitionType != null and competitionType != ''">competition_type,</if>
+            <if test="instructors != null">Instructors,</if>
+            <if test="memberCount != null">member_count,</if>
+            <if test="registrationDate != null">registration_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="competitionStartTime != null">competition_start_time,</if>
+            <if test="competitionEndTime != null">competition_end_time,</if>
+            <if test="status != null">status,</if>
+            <if test="actions != null">actions,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="organizingBody != null">#{organizingBody},</if>
+            <if test="participationFee != null and participationFee != ''">#{participationFee},</if>
+            <if test="competitionType != null and competitionType != ''">#{competitionType},</if>
+            <if test="instructors != null">#{instructors},</if>
+            <if test="memberCount != null">#{memberCount},</if>
+            <if test="registrationDate != null">#{registrationDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="competitionStartTime != null">#{competitionStartTime},</if>
+            <if test="competitionEndTime != null">#{competitionEndTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="actions != null">#{actions},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTDcompetitions" parameterType="TDcompetitions">
+        update TDcompetitions
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="organizingBody != null">organizing_body = #{organizingBody},</if>
+            <if test="participationFee != null and participationFee != ''">participation_fee = #{participationFee},</if>
+            <if test="competitionType != null and competitionType != ''">competition_type = #{competitionType},</if>
+            <if test="instructors != null">Instructors = #{instructors},</if>
+            <if test="memberCount != null">member_count = #{memberCount},</if>
+            <if test="registrationDate != null">registration_date = #{registrationDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="competitionStartTime != null">competition_start_time = #{competitionStartTime},</if>
+            <if test="competitionEndTime != null">competition_end_time = #{competitionEndTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="actions != null">actions = #{actions},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTDcompetitionsById" parameterType="Long">
+        delete from TDcompetitions where id = #{id}
+    </delete>
+
+    <delete id="deleteTDcompetitionsByIds" parameterType="String">
+        delete from TDcompetitions where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

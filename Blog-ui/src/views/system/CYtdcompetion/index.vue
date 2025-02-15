@@ -1,72 +1,63 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="赛事名称" prop="competitionName">
+      <el-form-item label="${comment}" prop="competitionName">
         <el-input
           v-model="queryParams.competitionName"
-          placeholder="请输入赛事名称"
+          placeholder="请输入${comment}"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="赛事级别" prop="organizingBody">
-        <el-input
-          v-model="queryParams.organizingBody"
-          placeholder="请输入赛事级别"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="赛事费用" prop="participationFee">
-        <el-input
-          v-model="queryParams.participationFee"
-          placeholder="请输入赛事费用"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="赛事类别" prop="competitionType">
-        <el-input
-          v-model="queryParams.competitionType"
-          placeholder="请输入赛事类别"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="开始报名" prop="registrationDate">
+      <el-form-item label="${comment}" prop="startDate">
         <el-date-picker clearable size="small"
-          v-model="queryParams.registrationDate"
+          v-model="queryParams.startDate"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择开始报名">
+          placeholder="选择${comment}">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="截止报名" prop="endDate">
+      <el-form-item label="${comment}" prop="endDate">
         <el-date-picker clearable size="small"
           v-model="queryParams.endDate"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择截止报名">
+          placeholder="选择${comment}">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="开始比赛" prop="competitionStartTime">
+      <el-form-item label="${comment}" prop="location">
+        <el-input
+          v-model="queryParams.location"
+          placeholder="请输入${comment}"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="${comment}" prop="teamCount">
+        <el-input
+          v-model="queryParams.teamCount"
+          placeholder="请输入${comment}"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="${comment}" prop="createdAt">
         <el-date-picker clearable size="small"
-          v-model="queryParams.competitionStartTime"
+          v-model="queryParams.createdAt"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择开始比赛">
+          placeholder="选择${comment}">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="截止比赛" prop="competitionEndTime">
+      <el-form-item label="${comment}" prop="updatedAt">
         <el-date-picker clearable size="small"
-          v-model="queryParams.competitionEndTime"
+          v-model="queryParams.updatedAt"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择截止比赛">
+          placeholder="选择${comment}">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -83,7 +74,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:competitions2:add']"
+          v-hasPermi="['system:CYtdcompetion:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -94,7 +85,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:competitions2:edit']"
+          v-hasPermi="['system:CYtdcompetion:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -105,7 +96,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:competitions2:remove']"
+          v-hasPermi="['system:CYtdcompetion:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -115,40 +106,39 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:competitions2:export']"
+          v-hasPermi="['system:CYtdcompetion:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="competitions2List" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="CYtdcompetionList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <!-- <el-table-column label="赛事id" align="center" prop="id" /> -->
-      <el-table-column label="赛事名称" align="center" prop="competitionName" />
-      <el-table-column label="赛事级别" align="center" prop="organizingBody" />
-      <el-table-column label="赛事费用" align="center" prop="participationFee" />
-      <el-table-column label="赛事类别" align="center" prop="competitionType" />
-      <el-table-column label="开始报名" align="center" prop="registrationDate" width="180">
+      <el-table-column label="${comment}" align="center" prop="competitionId" />
+      <el-table-column label="${comment}" align="center" prop="competitionName" />
+      <el-table-column label="${comment}" align="center" prop="startDate" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.registrationDate, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.startDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="截止报名" align="center" prop="endDate" width="180">
+      <el-table-column label="${comment}" align="center" prop="endDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="开始比赛时间" align="center" prop="competitionStartTime" width="180">
+      <el-table-column label="${comment}" align="center" prop="location" />
+      <el-table-column label="${comment}" align="center" prop="teamCount" />
+      <el-table-column label="${comment}" align="center" prop="description" />
+      <el-table-column label="${comment}" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.competitionStartTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="截止比赛时间" align="center" prop="competitionEndTime" width="180">
+      <el-table-column label="${comment}" align="center" prop="updatedAt" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.competitionEndTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column label="状态" align="center" prop="status" /> -->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -156,14 +146,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:competitions2:edit']"
+            v-hasPermi="['system:CYtdcompetion:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:competitions2:remove']"
+            v-hasPermi="['system:CYtdcompetion:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -177,51 +167,51 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改赛事登记对话框 -->
+    <!-- 添加或修改成员团队赛事对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="赛事名称" prop="competitionName">
-          <el-input v-model="form.competitionName" placeholder="请输入赛事名称" />
+        <el-form-item label="${comment}" prop="competitionName">
+          <el-input v-model="form.competitionName" placeholder="请输入${comment}" />
         </el-form-item>
-        <el-form-item label="赛事级别" prop="organizingBody">
-          <el-input v-model="form.organizingBody" placeholder="请输入赛事级别" />
-        </el-form-item>
-        <el-form-item label="赛事费用" prop="participationFee">
-          <el-input v-model="form.participationFee" placeholder="请输入赛事费用" />
-        </el-form-item>
-        <el-form-item label="赛事类别" prop="competitionType">
-          <el-input v-model="form.competitionType" placeholder="请输入赛事类别" />
-        </el-form-item>
-        <el-form-item label="开始报名" prop="registrationDate">
+        <el-form-item label="${comment}" prop="startDate">
           <el-date-picker clearable size="small"
-            v-model="form.registrationDate"
+            v-model="form.startDate"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="选择开始报名">
+            placeholder="选择${comment}">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="截止报名" prop="endDate">
+        <el-form-item label="${comment}" prop="endDate">
           <el-date-picker clearable size="small"
             v-model="form.endDate"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="选择截止报名">
+            placeholder="选择${comment}">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="开始比赛" prop="competitionStartTime">
+        <el-form-item label="${comment}" prop="location">
+          <el-input v-model="form.location" placeholder="请输入${comment}" />
+        </el-form-item>
+        <el-form-item label="${comment}" prop="teamCount">
+          <el-input v-model="form.teamCount" placeholder="请输入${comment}" />
+        </el-form-item>
+        <el-form-item label="${comment}" prop="description">
+          <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+        <el-form-item label="${comment}" prop="createdAt">
           <el-date-picker clearable size="small"
-            v-model="form.competitionStartTime"
+            v-model="form.createdAt"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="选择开始比赛">
+            placeholder="选择${comment}">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="截止比赛" prop="competitionEndTime">
+        <el-form-item label="${comment}" prop="updatedAt">
           <el-date-picker clearable size="small"
-            v-model="form.competitionEndTime"
+            v-model="form.updatedAt"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="选择截止比赛">
+            placeholder="选择${comment}">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -234,10 +224,10 @@
 </template>
 
 <script>
-import { listCompetitions2, getCompetitions2, delCompetitions2, addCompetitions2, updateCompetitions2 } from "@/api/system/competitions2";
+import { listCYtdcompetion, getCYtdcompetion, delCYtdcompetion, addCYtdcompetion, updateCYtdcompetion } from "@/api/system/CYtdcompetion";
 
 export default {
-  name: "Competitions2",
+  name: "CYtdcompetion",
   data() {
     return {
       // 遮罩层
@@ -252,8 +242,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 赛事登记表格数据
-      competitions2List: [],
+      // 成员团队赛事表格数据
+      CYtdcompetionList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -263,37 +253,20 @@ export default {
         pageNum: 1,
         pageSize: 10,
         competitionName: null,
-        organizingBody: null,
-        participationFee: null,
-        competitionType: null,
-        registrationDate: null,
+        startDate: null,
         endDate: null,
-        competitionStartTime: null,
-        competitionEndTime: null,
-        status: null,
-        actions: null
+        location: null,
+        teamCount: null,
+        description: null,
+        createdAt: null,
+        updatedAt: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
         competitionName: [
-          { required: true, message: "赛事名称不能为空", trigger: "blur" }
-        ],
-        organizingBody: [
-          { required: true, message: "赛事级别不能为空", trigger: "blur" }
-        ],
-        participationFee: [
-          { required: true, message: "赛事费用不能为空", trigger: "blur" }
-        ],
-        competitionType: [
-          { required: true, message: "赛事类别不能为空", trigger: "blur" }
-        ],
-        registrationDate: [
-          { required: true, message: "开始报名不能为空", trigger: "blur" }
-        ],
-        endDate: [
-          { required: true, message: "截止报名不能为空", trigger: "blur" }
+          { required: true, message: "$comment不能为空", trigger: "blur" }
         ],
       }
     };
@@ -302,11 +275,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询赛事登记列表 */
+    /** 查询成员团队赛事列表 */
     getList() {
       this.loading = true;
-      listCompetitions2(this.queryParams).then(response => {
-        this.competitions2List = response.rows;
+      listCYtdcompetion(this.queryParams).then(response => {
+        this.CYtdcompetionList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -319,17 +292,15 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        id: null,
+        competitionId: null,
         competitionName: null,
-        organizingBody: null,
-        participationFee: null,
-        competitionType: null,
-        registrationDate: null,
+        startDate: null,
         endDate: null,
-        competitionStartTime: null,
-        competitionEndTime: null,
-        status: "0",
-        actions: null
+        location: null,
+        teamCount: null,
+        description: null,
+        createdAt: null,
+        updatedAt: null
       };
       this.resetForm("form");
     },
@@ -345,7 +316,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.ids = selection.map(item => item.competitionId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -353,30 +324,30 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加赛事登记";
+      this.title = "添加成员团队赛事";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const id = row.id || this.ids
-      getCompetitions2(id).then(response => {
+      const competitionId = row.competitionId || this.ids
+      getCYtdcompetion(competitionId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改赛事登记";
+        this.title = "修改成员团队赛事";
       });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.id != null) {
-            updateCompetitions2(this.form).then(response => {
+          if (this.form.competitionId != null) {
+            updateCYtdcompetion(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addCompetitions2(this.form).then(response => {
+            addCYtdcompetion(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -387,9 +358,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除赛事登记编号为"' + ids + '"的数据项？').then(function() {
-        return delCompetitions2(ids);
+      const competitionIds = row.competitionId || this.ids;
+      this.$modal.confirm('是否确认删除成员团队赛事编号为"' + competitionIds + '"的数据项？').then(function() {
+        return delCYtdcompetion(competitionIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -397,9 +368,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/competitions2/export', {
+      this.download('system/CYtdcompetion/export', {
         ...this.queryParams
-      }, `competitions2_${new Date().getTime()}.xlsx`)
+      }, `CYtdcompetion_${new Date().getTime()}.xlsx`)
     }
   }
 };

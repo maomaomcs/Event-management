@@ -95,6 +95,11 @@ export const constantRoutes = [{
     hidden: true,
   },
   {
+    path: '/TeamCompetition',
+    component: (resolve) => require(['@/views/dashboard/TeamCompetition'], resolve),
+    hidden: true,
+  },  
+  {
     path: '/cmsRegister',
     component: (resolve) => require(['@/views/cms/cmsRegister'], resolve),
     hidden: true
